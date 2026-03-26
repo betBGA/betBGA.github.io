@@ -1,0 +1,205 @@
+/* ── RPC Settings overlay ── */
+
+.rpc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 26, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: rpc-fade-in 0.2s ease-out;
+}
+
+@keyframes rpc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.rpc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2rem 2.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  animation: rpc-slide-up 0.25s ease-out;
+  max-width: 520px;
+  width: 94vw;
+}
+
+@keyframes rpc-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rpc-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rpc-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* ── Server list ── */
+
+.rpc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.rpc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.rpc-item--active {
+  border-color: var(--primary);
+  background: rgba(0, 230, 118, 0.04);
+}
+
+.rpc-url {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rpc-item--active .rpc-url::before {
+  content: "● ";
+  color: var(--primary);
+  font-size: 0.6rem;
+  vertical-align: middle;
+}
+
+.rpc-item-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.rpc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.rpc-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.rpc-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.rpc-btn--danger:hover:not(:disabled) {
+  color: var(--error);
+  border-color: var(--error);
+  background: rgba(255, 82, 82, 0.08);
+}
+
+/* ── Add URL row ── */
+
+.rpc-add {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.rpc-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.rpc-input:focus {
+  border-color: var(--primary);
+}
+
+.rpc-add-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+}
+
+.rpc-error {
+  font-size: 0.78rem;
+  color: var(--error);
+  margin-top: -0.25rem;
+}
+
+/* ── Action buttons ── */
+
+.rpc-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rpc-actions-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 480px) {
+  .rpc-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .rpc-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rpc-actions-right {
+    justify-content: flex-end;
+  }
+}
+

@@ -1,0 +1,87 @@
+.bet-card {
+  display: block;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.bet-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.1);
+  transform: translateY(-2px);
+}
+
+.bet-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.bet-card-id {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.bet-card-state {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid;
+}
+
+.state-open { color: var(--primary); border-color: var(--primary); background: rgba(0, 230, 118, 0.08); }
+.state-confirming { color: #ffc107; border-color: #ffc107; background: rgba(255, 193, 7, 0.08); }
+.state-locked { color: var(--secondary); border-color: var(--secondary); background: rgba(124, 77, 255, 0.08); }
+.state-resolved { color: #00b0ff; border-color: #00b0ff; background: rgba(0, 176, 255, 0.08); }
+.state-cancelled { color: var(--text-muted); border-color: var(--border); background: rgba(136, 146, 176, 0.08); }
+.state-refunded { color: #ff9800; border-color: #ff9800; background: rgba(255, 152, 0, 0.08); }
+
+.bet-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bet-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.bet-card-label {
+  color: var(--text-muted);
+}
+
+.bet-card-amount {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.bet-card-players {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.bet-card-table-link {
+  color: var(--secondary);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.bet-card-table-link:hover {
+  text-decoration: underline;
+}
+

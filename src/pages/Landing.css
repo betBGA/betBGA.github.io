@@ -1,0 +1,270 @@
+.landing {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 5rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, rgba(0, 230, 118, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  letter-spacing: -0.03em;
+  position: relative;
+}
+
+.hero-highlight {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.hero-link {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.hero-link:hover {
+  color: var(--primary);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #00c853);
+  color: #0a0e1a;
+  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.25);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 30px rgba(0, 230, 118, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+  border-color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.btn-lg {
+  padding: 0.85rem 2rem;
+  font-size: 1.05rem;
+}
+
+.btn-sm {
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+.btn-danger:hover {
+  background: rgba(255, 82, 82, 0.1);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--secondary), #651fff);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* How it works */
+.how-it-works {
+  padding: 3rem 0;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.title-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.title-dot.locked {
+  background: var(--secondary);
+  box-shadow: 0 0 10px var(--secondary);
+}
+
+.title-dot.resolved {
+  background: #00b0ff;
+  box-shadow: 0 0 10px #00b0ff;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.step-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.step-card:hover {
+  border-color: var(--primary);
+}
+
+.step-number {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: var(--primary);
+  color: #0a0e1a;
+  font-weight: 800;
+  font-size: 0.75rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Recent Bets */
+.recent-bets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.bets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.loading-placeholder,
+.empty-state {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+  background: var(--card-bg);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+/* CTA */
+.landing-cta {
+  text-align: center;
+  padding: 4rem 0 2rem;
+}
+
+.landing-cta h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.landing-cta p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .recent-bets {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    padding: 3rem 0;
+  }
+}
+

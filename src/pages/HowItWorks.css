@@ -1,0 +1,151 @@
+.hiw-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.hiw-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.hiw-intro {
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* Sections */
+.hiw-section {
+  margin-bottom: 2.5rem;
+}
+
+.hiw-section h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.hiw-section p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+}
+
+.hiw-section code {
+  font-size: 0.85em;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+/* State flow diagram */
+.hiw-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.hiw-state {
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.hiw-state.hiw-final {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.hiw-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* Lists */
+.hiw-list {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hiw-list strong {
+  color: var(--text);
+}
+
+/* Link cards */
+.hiw-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.hiw-link-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.hiw-link-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.hiw-link-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.hiw-link-card strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.hiw-link-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* CTA */
+.hiw-cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+}
+
+@media (max-width: 550px) {
+  .hiw-links {
+    grid-template-columns: 1fr;
+  }
+}
+
