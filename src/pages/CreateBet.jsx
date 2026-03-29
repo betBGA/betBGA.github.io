@@ -182,7 +182,7 @@ export function CreateBet() {
           <button
             type="submit"
             className="btn btn-primary btn-lg create-submit"
-            disabled={false/*submitting || !isConnected || paused*/}
+            disabled={submitting || !isConnected || paused}
           >
             {submitting ? "Creating…" : paused ? "New Bets Paused" : !isConnected ? "Connect Wallet First" : "Create Bet"}
           </button>
