@@ -1,5 +1,5 @@
 // betBGA contract address on Polygon Amoy testnet
-export const BETBGA_ADDRESS = "0x7d6981b91ab05Ef63297A1780C870793400c4e6D";
+export const BETBGA_ADDRESS = "0x0C5f31F5dE73e0A95fc1aFACc4dB62c811C98B09";
 
 // Polygon Amoy testnet chain config
 export const POLYGON_CHAIN_ID = 80002;
@@ -67,8 +67,6 @@ export const ORACLE_FEE_BPS = 100n;
 // Wei per whole POL token
 export const ONE_POL = 10n ** 18n;
 
-// Block number at which the BetBGA contract was deployed (used as fromBlock for event queries)
-export const DEPLOY_BLOCK = 35827581;
 
 // Polling interval for bet updates (ms)
 export const POLL_INTERVAL = 5000;

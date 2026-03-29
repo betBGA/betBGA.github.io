@@ -17,7 +17,82 @@
   line-height: 1.7;
 }
 
-/* Sections */
+/* ── Contract banner ── */
+.hiw-contract-banner {
+  margin-bottom: 2.5rem;
+}
+
+.hiw-contract-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.2s;
+}
+
+.hiw-contract-link:hover {
+  transform: translateY(-2px);
+}
+
+.hiw-contract-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.hiw-contract-link strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.hiw-contract-address {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.2em 0.45em;
+  border-radius: 4px;
+  margin-top: 0.15rem;
+}
+
+.hiw-external-arrow {
+  margin-left: auto;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Tip box ── */
+.hiw-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 193, 7, 0.06);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.hiw-tip strong {
+  color: var(--text);
+}
+
+.hiw-tip-icon {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+/* ── Sections ── */
 .hiw-section {
   margin-bottom: 2.5rem;
 }
@@ -42,17 +117,29 @@
   border-radius: 4px;
 }
 
-/* State flow diagram */
+/* ── State flow diagram ── */
 .hiw-flow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   padding: 1rem 1.25rem;
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
+}
+
+.hiw-flow + .hiw-flow-branch {
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  margin-top: -0.5rem;
+  padding-top: 0.75rem;
+}
+
+.hiw-flow:first-of-type {
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 0;
 }
 
 .hiw-state {
@@ -69,12 +156,113 @@
   color: var(--primary);
 }
 
+.hiw-state.hiw-alt {
+  border-color: rgba(255, 193, 7, 0.4);
+  color: rgb(255, 193, 7);
+  font-size: 0.8rem;
+}
+
 .hiw-arrow {
   color: var(--text-muted);
   font-size: 1rem;
 }
 
-/* Lists */
+.hiw-branch-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-right: 0.25rem;
+  font-style: italic;
+}
+
+/* ── State description list ── */
+.hiw-states {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hiw-state-item {
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.hiw-state-item dt {
+  margin-bottom: 0.5rem;
+}
+
+.hiw-state-badge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 5px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.hiw-badge-final {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.hiw-badge-alt {
+  border-color: rgba(255, 193, 7, 0.4);
+  color: rgb(255, 193, 7);
+}
+
+.hiw-state-item dd {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.hiw-state-final {
+  opacity: 0.85;
+}
+
+/* Money flow callouts */
+.hiw-money {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.hiw-money strong {
+  color: var(--text);
+}
+
+.hiw-money-out {
+  background: rgba(76, 175, 80, 0.08);
+  border-left: 3px solid rgba(76, 175, 80, 0.5);
+}
+
+.hiw-money-neutral {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Payout sub-list inside Resolved */
+.hiw-payout-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.88rem;
+}
+
+.hiw-payout-list strong {
+  color: var(--text);
+}
+
+/* ── Lists ── */
 .hiw-list {
   color: var(--text-muted);
   font-size: 0.9rem;
@@ -89,7 +277,20 @@
   color: var(--text);
 }
 
-/* Link cards */
+/* Source hint */
+.hiw-source-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+}
+
+.hiw-source-hint a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Link cards ── */
 .hiw-links {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -134,7 +335,7 @@
   color: var(--text-muted);
 }
 
-/* CTA */
+/* ── CTA ── */
 .hiw-cta {
   display: flex;
   gap: 1rem;
@@ -147,5 +348,19 @@
   .hiw-links {
     grid-template-columns: 1fr;
   }
-}
 
+  .hiw-flow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hiw-arrow {
+    transform: rotate(90deg);
+    align-self: center;
+  }
+
+  .hiw-flow-branch {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

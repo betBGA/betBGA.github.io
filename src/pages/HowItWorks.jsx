@@ -15,10 +15,40 @@ export function HowItWorks() {
         winners are determined by independent oracle nodes.
       </p>
 
+      {/* Contract banner */}
+      <section className="hiw-contract-banner">
+        <a
+          href={CONTRACT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hiw-contract-link"
+        >
+          <span className="hiw-contract-icon">📜</span>
+          <span>
+            <strong>View the verified contract on Polygonscan</strong>
+            <code className="hiw-contract-address">{BETBGA_ADDRESS}</code>
+          </span>
+          <span className="hiw-external-arrow">↗</span>
+        </a>
+        <div className="hiw-tip">
+          <span className="hiw-tip-icon">💡</span>
+          <span>
+            <strong>Tip:</strong> Add the contract address above to your
+            wallet's address book (e.g. label it "BGAmble"). That way you can
+            instantly recognize it when signing transactions.
+          </span>
+        </div>
+      </section>
+
       {/* Bet Lifecycle */}
       <section className="hiw-section">
         <h2>Bet Lifecycle</h2>
-        <p>Every bet moves through a simple state machine:</p>
+        <p>
+          Every bet moves through a series of states. Here's exactly what each
+          state means.
+        </p>
+
+        {/* Flow diagram — happy path */}
         <div className="hiw-flow">
           <span className="hiw-state">Open</span>
           <span className="hiw-arrow">→</span>
@@ -28,27 +58,115 @@ export function HowItWorks() {
           <span className="hiw-arrow">→</span>
           <span className="hiw-state hiw-final">Resolved</span>
         </div>
-        <ol className="hiw-list">
-          <li>
-            <strong>Open</strong> — A player creates a bet by specifying the BGA
-            table&nbsp;ID, the POL stake, and the number of player slots
-            (2–10). Other players join until all slots are filled.
-          </li>
-          <li>
-            <strong>Confirming</strong> — Once full, every participant reviews
-            the lobby (opponents &amp; predictions) and confirms. If anyone
-            leaves, the bet re-opens and confirmations reset.
-          </li>
-          <li>
-            <strong>Locked</strong> — All players confirmed. The game is played
-            on Board Game Arena. Oracle nodes now monitor for the result.
-          </li>
-          <li>
-            <strong>Resolved</strong> — Oracles reach consensus on the winner.
-            The prize pool is distributed automatically to everyone who predicted
-            correctly.
-          </li>
-        </ol>
+        <div className="hiw-flow hiw-flow-branch">
+          <span className="hiw-branch-label">from Locked:</span>
+          <span className="hiw-state hiw-alt">No Consensus</span>
+          <span className="hiw-state hiw-alt">Cancelled</span>
+          <span className="hiw-state hiw-alt">Refunded</span>
+        </div>
+
+        <dl className="hiw-states">
+          <div className="hiw-state-item">
+            <dt>
+              <span className="hiw-state-badge">Open</span>
+            </dt>
+            <dd>
+              The bet has been created with a BGA table&nbsp;ID, a POL stake
+              amount, and a number of player slots (2–10). The creator joins the bet automatically. Other players can join the bet.
+              <span className="hiw-money hiw-money-out">
+                🚪 You can <strong>leave</strong> at any time — your full stake
+                is returned immediately.
+              </span>
+            </dd>
+          </div>
+
+          <div className="hiw-state-item">
+            <dt>
+              <span className="hiw-state-badge">Confirming</span>
+            </dt>
+            <dd>
+              All slots are filled. Each player must now review the lobby —
+              opponents, predictions, and the BGA table link — and confirm they
+              are ready.
+              <span className="hiw-money hiw-money-out">
+                🚪 You can still <strong>leave</strong> — your full stake is
+                returned. The bet re-opens and all other confirmations are
+                reset.
+              </span>
+            </dd>
+          </div>
+
+          <div className="hiw-state-item">
+            <dt>
+              <span className="hiw-state-badge">Locked</span>
+            </dt>
+            <dd>
+              Everyone confirmed. The game is played on Board Game Arena while
+              oracle nodes monitor for the result. You cannot leave at this
+              point.
+              <span className="hiw-money hiw-money-neutral">
+                🗳️ You can <strong>vote to cancel</strong>. If <em>all</em>{" "}
+                participants vote to cancel, stakes are refunded in full with no fee.
+              </span>
+              <span className="hiw-money hiw-money-neutral">
+                ⏱️ If no resolution arrives within <strong>24&nbsp;hours</strong>,
+                any participant can trigger a full refund.
+              </span>
+            </dd>
+          </div>
+
+          <div className="hiw-state-item hiw-state-final">
+            <dt>
+              <span className="hiw-state-badge hiw-badge-final">Resolved</span>
+            </dt>
+            <dd>
+              The oracles reached consensus on the game's winner(s). The prize
+              pool (minus a 1% oracle fee) is automatically distributed:
+              <ul className="hiw-payout-list">
+                <li>
+                  <strong>Correct predictors</strong> split the pool equally.
+                </li>
+                <li>
+                  <strong>Nobody predicted correctly?</strong> The pool is split
+                  equally among <em>all</em> participants.
+                </li>
+              </ul>
+            </dd>
+          </div>
+
+          <div className="hiw-state-item hiw-state-final">
+            <dt>
+              <span className="hiw-state-badge hiw-badge-alt">No Consensus</span>
+            </dt>
+            <dd>
+              All four oracles reported, but fewer than three agreed on the
+              same result. All stakes are refunded in full —{" "}
+              <strong>no fee</strong> is charged.
+            </dd>
+          </div>
+
+          <div className="hiw-state-item hiw-state-final">
+            <dt>
+              <span className="hiw-state-badge hiw-badge-alt">Cancelled</span>
+            </dt>
+            <dd>
+              Every participant voted to cancel the bet while it was locked.
+              All stakes are refunded in full — <strong>no fee</strong> is
+              charged.
+            </dd>
+          </div>
+
+          <div className="hiw-state-item hiw-state-final">
+            <dt>
+              <span className="hiw-state-badge hiw-badge-alt">Refunded</span>
+            </dt>
+            <dd>
+              The bet was locked for more than 24&nbsp;hours without being
+              resolved, and a participant triggered the refund. All stakes are
+              returned in full — <strong>no fee</strong> is charged.
+            </dd>
+          </div>
+        </dl>
       </section>
 
       {/* Oracle Consensus */}
@@ -62,37 +180,38 @@ export function HowItWorks() {
         </p>
         <ul className="hiw-list">
           <li>
-            Oracles are set at deploy time and cannot be changed — there is no
-            admin key.
+            Oracles are set at deploy time and <strong>cannot be changed</strong>.
+            The contract has an owner, but the owner can <em>only</em> pause the
+            creation of new bets — they cannot touch funds, change oracles, or
+            interfere with existing bets in any way.
           </li>
           <li>
             If all 4 oracles report but fewer than 3 agree, the bet enters
             a <strong>No&nbsp;Consensus</strong> state and all stakes are
             refunded in full.
           </li>
-          <li>
-            A fee of <strong>1% of the prize pool</strong> per resolved bet is
-            deducted and paid to one oracle in round-robin
-            order. No fee is charged when a bet is not successfully resolved.
-          </li>
         </ul>
       </section>
 
-      {/* Escrow & Payouts */}
+      {/* Oracle Fee */}
       <section className="hiw-section">
-        <h2>Escrow &amp; Payouts</h2>
+        <h2>Why the 1% Oracle Fee?</h2>
         <p>
-          Every participant's POL stake is sent to the contract when they
-          join. Funds are held in escrow until the bet reaches a final state.
+          Running oracle nodes costs real money — servers that continuously
+          monitor Board Game Arena, verify game results, and submit on-chain
+          transactions (which cost gas). The <strong>1%&nbsp;fee</strong> on
+          successfully resolved bets covers these infrastructure costs and
+          incentivizes the oracles to operate reliably and honestly.
         </p>
         <ul className="hiw-list">
           <li>
-            <strong>Winners predicted correctly</strong> — the prize pool (minus
-            the 1% oracle fee) is split equally among all correct predictors.
+            The fee is only charged when a bet is <strong>successfully
+            resolved</strong>. No fee is taken on refunds, cancellations, or
+            failed consensus.
           </li>
           <li>
-            <strong>Nobody predicted correctly</strong> — the pool minus the fee
-            is split equally among <em>all</em> participants.
+            The fee is paid to one oracle at a time in round-robin order,
+            spreading the reward evenly.
           </li>
           <li>
             The maximum stake is <strong>10,000&nbsp;POL</strong> per
@@ -101,38 +220,9 @@ export function HowItWorks() {
         </ul>
       </section>
 
-      {/* Safety Mechanisms */}
-      <section className="hiw-section">
-        <h2>Safety Mechanisms</h2>
-        <ul className="hiw-list">
-          <li>
-            <strong>Unanimous cancel</strong> — While a bet is locked, all
-            participants can vote to cancel. If everyone agrees, all stakes are
-            refunded with no fee.
-          </li>
-          <li>
-            <strong>24-hour refund</strong> — If a locked bet is not resolved
-            within 24&nbsp;hours, any participant can trigger a full refund.
-          </li>
-          <li>
-            <strong>Reentrancy guard</strong> — All state-changing functions use
-            OpenZeppelin's <code>ReentrancyGuard</code>.
-          </li>
-          <li>
-            <strong>No admin keys</strong> — There is no owner, no upgrade
-            mechanism, and no way to withdraw funds except through the normal bet
-            lifecycle.
-          </li>
-        </ul>
-      </section>
-
       {/* Source & Verification */}
       <section className="hiw-section">
         <h2>Source &amp; Verification</h2>
-        <p>
-          The contract is fully open-source and verified on-chain. You can
-          inspect every line of code yourself:
-        </p>
         <div className="hiw-links">
           <a
             href={GITHUB_URL}

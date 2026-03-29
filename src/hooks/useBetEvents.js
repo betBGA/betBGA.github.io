@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { zeroPadValue, toBeHex } from "ethers";
 import { useWallet } from "./useWallet.js";
-import { BETBGA_ADDRESS, DEPLOY_BLOCK, POLL_INTERVAL } from "../utils/constants.js";
+import { BETBGA_ADDRESS, POLL_INTERVAL } from "../utils/constants.js";
 
 // Free-tier RPCs cap getLogs at 10,000 blocks per request.
 const MAX_BLOCK_RANGE = 9_999;
@@ -29,8 +29,8 @@ async function getLogsChunked(provider, filter, fromBlock, toBlock) {
  * then decode each log with the contract interface.
  *
  * Uses the bet's createdAtBlock as the starting point so we only scan
- * the exact range where this bet's events can exist. Falls back to
- * DEPLOY_BLOCK if createdAtBlock is not available.
+ * the exact range where this bet's events can exist. Waits until
+ * createdAtBlock is available before fetching.
  *
  * After the initial scan, subsequent polls only query from the last
  * seen block onward — typically a handful of blocks per 5-second interval.
@@ -51,7 +51,7 @@ export function useBetEvents(betId, createdAtBlock) {
   createdAtBlockRef.current = createdAtBlock;
 
   const fetchEvents = useCallback(async () => {
-    if (!readProvider || !readContract || !betId) return;
+    if (!readProvider || !readContract || !betId || !createdAtBlockRef.current) return;
 
     try {
       const betIdHex = zeroPadValue(toBeHex(betId), 32);
@@ -59,7 +59,7 @@ export function useBetEvents(betId, createdAtBlock) {
 
       const fromBlock = lastBlockRef.current != null
         ? lastBlockRef.current + 1
-        : (createdAtBlockRef.current || DEPLOY_BLOCK);
+        : createdAtBlockRef.current;
 
       // Nothing new since last poll
       if (fromBlock > latestBlock) return;

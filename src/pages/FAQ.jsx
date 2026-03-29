@@ -52,7 +52,7 @@ const FAQS = [
   },
   {
     q: "Is it safe?",
-    a: "betBGA is a non-custodial smart contract — funds are held in the contract, not by any person. The code is open-source and verifiable. However, as with any smart contract, use at your own risk. The 3-of-4 oracle consensus means you need to trust that at least 3 oracles are honest.",
+    a: "betBGA is a non-custodial smart contract — funds are held in the contract, not by any person. The contract has an owner, but their only power is to pause the creation of new bets; they cannot access funds, change oracles, or interfere with existing bets. The code is open-source and verifiable. However, as with any smart contract, use at your own risk. The 3-of-4 oracle consensus means you need to trust that at least 3 oracles are honest.",
   },
   {
     q: "What is Polygon?",

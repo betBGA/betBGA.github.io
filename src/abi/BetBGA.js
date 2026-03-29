@@ -4,6 +4,8 @@ export const BetBGAABI = [
   "function MAX_BET_AMOUNT() view returns (uint64)",
   "function nextBetId() view returns (uint32)",
   "function oracles(uint256) view returns (address)",
+  "function owner() view returns (address)",
+  "function acceptingNewBets() view returns (bool)",
 
   // Participant actions
   "function create(uint64 bgaTableId, uint64 amount, uint8 slotCount, uint64 predictedWinner) payable returns (uint32)",
@@ -15,6 +17,9 @@ export const BetBGAABI = [
 
   // Oracle actions
   "function reportResult(uint32 betId, uint64[] winnerIds)",
+
+  // Owner actions
+  "function setAcceptingNewBets(bool accepting)",
 
   // View functions
   "function getParticipants(uint32 betId) view returns (tuple(address addr, uint64 predictedWinner, bool confirmed, bool cancelVote)[])",
@@ -38,6 +43,7 @@ export const BetBGAABI = [
   "event BetCancelled(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy)",
   "event BetRefunded(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy)",
   "event OracleReported(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy, bytes32 resultHash, uint64[] winnerIds)",
+  "event AcceptingNewBetsChanged(bool accepting)",
 
   // Custom errors
   "error IncorrectValue()",
@@ -63,4 +69,6 @@ export const BetBGAABI = [
   "error AlreadyReported()",
   "error RefundTooEarly()",
   "error LimitMustBePositive()",
+  "error NotOwner()",
+  "error NewBetsDisabled()",
 ];
