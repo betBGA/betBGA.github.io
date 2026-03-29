@@ -20,6 +20,7 @@ const CUSTOM_ERROR_MESSAGES = {
   RefundTooEarly: "Refund is available 24 hours after the bet was locked.",
   IncorrectValue: "Incorrect POL amount sent. Please try again.",
   TransferFailed: "POL transfer failed. The recipient may have rejected it.",
+  NewBetsDisabled: "New bets are currently paused. Existing bets are unaffected — please try again later.",
 };
 
 /**

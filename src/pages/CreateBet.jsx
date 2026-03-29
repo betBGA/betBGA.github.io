@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "../hooks/useWallet.js";
 import { useToast } from "../hooks/useToast.js";
@@ -8,7 +8,7 @@ import { WalletOverlay } from "../components/WalletOverlay.jsx";
 import "./CreateBet.css";
 
 export function CreateBet() {
-  const { contract, isConnected } = useWallet();
+  const { contract, readContract, isConnected } = useWallet();
   const { addToast, removeToast } = useToast();
   const navigate = useNavigate();
 
@@ -18,6 +18,15 @@ export function CreateBet() {
   const [predictedWinner, setPredictedWinner] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [txLabel, setTxLabel] = useState("");
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    readContract.acceptingNewBets().then((accepting) => {
+      if (!cancelled) setPaused(!accepting);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [readContract]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -97,6 +106,16 @@ export function CreateBet() {
         <h1 className="create-title">🎲 Create New Bet</h1>
         <p className="create-sub">Set up a wager on a Board Game Arena game.</p>
 
+        {paused && (
+          <div className="create-paused-banner">
+            <span className="create-paused-icon">⏸️</span>
+            <div className="create-paused-text">
+              <strong>New bets are currently paused.</strong>
+              <span>Existing bets are unaffected. Please check back later.</span>
+            </div>
+          </div>
+        )}
+
         <form className="create-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="bgaTableId">BGA Table ID</label>
@@ -163,9 +182,9 @@ export function CreateBet() {
           <button
             type="submit"
             className="btn btn-primary btn-lg create-submit"
-            disabled={submitting || !isConnected}
+            disabled={false/*submitting || !isConnected || paused*/}
           >
-            {submitting ? "Creating…" : !isConnected ? "Connect Wallet First" : "Create Bet"}
+            {submitting ? "Creating…" : paused ? "New Bets Paused" : !isConnected ? "Connect Wallet First" : "Create Bet"}
           </button>
         </form>
       </div>
