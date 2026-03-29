@@ -82,7 +82,7 @@ function ParticipantSlotInner({ addr, predictedWinner, confirmed, cancelVote, is
         {betState === BetState.Locked && cancelVote && <span className="badge badge-cancel">Voted to cancel</span>}
         {betState === BetState.Resolved && isWinner && (
           <span className={`badge ${isSplit ? "badge-split" : "badge-won"}`}>
-            {isSplit ? "Split" : "Won"} ${payout}
+            {isSplit ? "Split" : "Won"} {payout} POL
           </span>
         )}
       </div>

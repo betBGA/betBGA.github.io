@@ -1,8 +1,5 @@
 // betBGA contract address on Polygon Amoy testnet
-export const BETBGA_ADDRESS = "0xa3822Cdcff7d6F1Ff889550fAAa27c7bcF884919";
-
-// USDC on Polygon Amoy testnet
-export const USDC_ADDRESS = "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582";
+export const BETBGA_ADDRESS = "0x7d6981b91ab05Ef63297A1780C870793400c4e6D";
 
 // Polygon Amoy testnet chain config
 export const POLYGON_CHAIN_ID = 80002;
@@ -64,11 +61,14 @@ export const BetState = {
 
 export const BET_STATE_NAMES = ["Open", "Confirming", "Locked", "Resolved", "No Consensus", "Cancelled", "Refunded"];
 
-// Oracle fee: USDC 0.50
-export const ORACLE_FEE = 500_000;
+// Oracle fee: 1% of prize pool (basis points, BigInt for exact math)
+export const ORACLE_FEE_BPS = 100n;
+
+// Wei per whole POL token
+export const ONE_POL = 10n ** 18n;
 
 // Block number at which the BetBGA contract was deployed (used as fromBlock for event queries)
-export const DEPLOY_BLOCK = 35620442;
+export const DEPLOY_BLOCK = 35827581;
 
 // Polling interval for bet updates (ms)
 export const POLL_INTERVAL = 5000;

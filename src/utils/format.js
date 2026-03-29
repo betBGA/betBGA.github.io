@@ -1,20 +1,33 @@
+import { ORACLE_FEE_BPS, ONE_POL } from "./constants.js";
+
 /**
- * Format a USDC amount (6 decimals) to a human-readable string.
- * e.g. 10000000n → "10.00"
+ * Format a wei amount (BigInt) to a human-readable POL string.
+ * e.g. 49_500000000000000000n → "49.5"
+ *      10_000000000000000000n → "10"
  */
-export function formatUsdc(amount) {
-  const n = Number(amount);
-  return (n / 1_000_000).toFixed(2);
+export function formatPol(wei) {
+  const w = BigInt(wei);
+  const whole = w / ONE_POL;
+  const frac = w % ONE_POL;
+  if (frac === 0n) return whole.toString();
+  // Up to 4 significant decimal digits, strip trailing zeros
+  const fracStr = frac.toString().padStart(18, "0").slice(0, 4).replace(/0+$/, "");
+  return `${whole}.${fracStr}`;
 }
 
 /**
- * Parse a human-readable USDC string to the 6-decimal integer.
- * e.g. "10.50" → 10500000
+ * Compute payouts exactly as the contract does (BigInt integer math).
+ * amount     – whole POL integer (e.g. 10)
+ * slotCount  – number of player slots
+ * winnerCount – number of winners (≥ 1)
+ * Returns { prizePool, oracleFee, payout, share } all in wei (BigInt).
  */
-export function parseUsdc(str) {
-  const num = parseFloat(str);
-  if (isNaN(num) || num < 0) return 0;
-  return Math.round(num * 1_000_000);
+export function computePayouts(amount, slotCount, winnerCount) {
+  const prizePool = BigInt(amount) * ONE_POL * BigInt(slotCount);
+  const oracleFee = prizePool * ORACLE_FEE_BPS / 10000n;
+  const payout = prizePool - oracleFee;
+  const share = payout / BigInt(winnerCount);
+  return { prizePool, oracleFee, payout, share };
 }
 
 /**
@@ -60,6 +73,7 @@ export function parseBetSummary(raw) {
     state: Number(raw.state),
     amount: Number(raw.amount),
     lockedAt: Number(raw.lockedAt),
+    createdAtBlock: Number(raw.createdAtBlock),
     participants: raw.participants.map((p) => ({
       addr: p.addr,
       predictedWinner: Number(p.predictedWinner),
@@ -71,5 +85,3 @@ export function parseBetSummary(raw) {
       : [],
   };
 }
-
-

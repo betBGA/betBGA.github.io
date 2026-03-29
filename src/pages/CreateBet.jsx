@@ -2,14 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "../hooks/useWallet.js";
 import { useToast } from "../hooks/useToast.js";
-import { parseUsdc } from "../utils/format.js";
 import { parseContractError, waitForTx } from "../utils/contract.js";
-import { BETBGA_ADDRESS } from "../utils/constants.js";
+import { ONE_POL } from "../utils/constants.js";
 import { WalletOverlay } from "../components/WalletOverlay.jsx";
 import "./CreateBet.css";
 
 export function CreateBet() {
-  const { contract, usdcContract, isConnected, address } = useWallet();
+  const { contract, isConnected } = useWallet();
   const { addToast, removeToast } = useToast();
   const navigate = useNavigate();
 
@@ -22,7 +21,7 @@ export function CreateBet() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!isConnected || !contract || !usdcContract) {
+    if (!isConnected || !contract) {
       addToast("Please connect your wallet first.", "error");
       return;
     }
@@ -30,7 +29,7 @@ export function CreateBet() {
     const tableId = parseInt(bgaTableId, 10);
     const slots = parseInt(slotCount, 10);
     const winnerId = parseInt(predictedWinner, 10);
-    const amountUsdc = parseUsdc(amount);
+    const amountPol = parseInt(amount, 10);
 
     if (!tableId || tableId <= 0) {
       addToast("Enter a valid BGA table ID.", "error");
@@ -40,12 +39,12 @@ export function CreateBet() {
       addToast("Enter a valid BGA player ID for your predicted winner.", "error");
       return;
     }
-    if (amountUsdc < 1_000_000) {
-      addToast("Minimum bet is USDC 1.00.", "error");
+    if (!amountPol || amountPol < 10) {
+      addToast("Minimum bet is 10 POL.", "error");
       return;
     }
-    if (amountUsdc > 5_000_000_000) {
-      addToast("Maximum bet is USDC 5,000.00.", "error");
+    if (amountPol > 10_000) {
+      addToast("Maximum bet is 10,000 POL.", "error");
       return;
     }
 
@@ -53,21 +52,11 @@ export function CreateBet() {
     let toastId;
 
     try {
-      // Check allowance
-      const allowance = await usdcContract.allowance(address, BETBGA_ADDRESS);
-      if (allowance < BigInt(amountUsdc)) {
-        setTxLabel("Approving USDC");
-        toastId = addToast("Approving USDC…", "pending", 0);
-        const approveTx = await usdcContract.approve(BETBGA_ADDRESS, amountUsdc);
-        await waitForTx(approveTx);
-        removeToast(toastId);
-        addToast("USDC approved!", "success");
-      }
-
-      // Create bet
+      // Create bet — send native POL with the call
       setTxLabel("Creating bet");
       toastId = addToast("Creating bet…", "pending", 0);
-      const tx = await contract.create(tableId, amountUsdc, slots, winnerId);
+      const value = BigInt(amountPol) * ONE_POL;
+      const tx = await contract.create(tableId, amountPol, slots, winnerId, { value });
       const receipt = await waitForTx(tx);
 
       // Parse BetCreated event to get betId
@@ -126,19 +115,19 @@ export function CreateBet() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="amount">Bet Amount (USDC)</label>
+            <label htmlFor="amount">Bet Amount (POL)</label>
             <input
               id="amount"
               type="number"
-              min="1"
-              max="5000"
-              step="0.01"
-              placeholder="e.g. 10.00"
+              min="10"
+              max="10000"
+              step="1"
+              placeholder="e.g. 10"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
             />
-            <span className="form-hint">Each player stakes this amount. Min $1, max $5,000.</span>
+            <span className="form-hint">Each player stakes this amount. Min 10 POL, max 10,000 POL.</span>
           </div>
 
           <div className="form-group">

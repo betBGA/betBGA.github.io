@@ -26,7 +26,7 @@ export function Landing() {
           Bet on <span className="hero-highlight">Board Game Arena</span> games
         </h1>
         <p className="hero-sub">
-          <a href="https://github.com/betBGA/betBGA.github.io" target="_blank" rel="noopener noreferrer" className="hero-link">Open-source</a> · Trust-minimized · Oracle-verified · USDC
+          <a href="https://github.com/betBGA/betBGA.github.io" target="_blank" rel="noopener noreferrer" className="hero-link">Open-source</a> · Trust-minimized · Oracle-verified · POL
         </p>
         <div className="hero-actions">
           <Link to="/create" className="btn btn-primary btn-lg">

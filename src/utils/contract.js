@@ -5,8 +5,8 @@ const CUSTOM_ERROR_MESSAGES = {
   NotParticipant: "You are not a participant in this bet.",
   SlotCountTooLow: "Need at least 2 player slots.",
   SlotCountTooHigh: "Maximum 10 player slots.",
-  BetAmountTooLow: "Minimum bet is USDC 1.00.",
-  BetAmountTooHigh: "Maximum bet is USDC 5,000.00.",
+  BetAmountTooLow: "Minimum bet is 10 POL.",
+  BetAmountTooHigh: "Maximum bet is 10,000 POL.",
   InvalidTableId: "Enter a valid BGA table ID.",
   BetNotOpen: "This bet is not open for joining.",
   BetFull: "This bet is full.",
@@ -18,41 +18,73 @@ const CUSTOM_ERROR_MESSAGES = {
   BetNotLocked: "This bet is not locked.",
   AlreadyVotedCancel: "You already voted to cancel.",
   RefundTooEarly: "Refund is available 24 hours after the bet was locked.",
+  IncorrectValue: "Incorrect POL amount sent. Please try again.",
+  TransferFailed: "POL transfer failed. The recipient may have rejected it.",
 };
+
+/**
+ * Recursively dig through nested error objects to find hex revert data.
+ * MetaMask wraps it as { code: -32603, data: { code: 3, data: "0x…" } }.
+ * Other wallets may nest differently — this handles up to 5 levels deep.
+ */
+function findRevertData(obj, depth = 0) {
+  if (!obj || depth > 5) return null;
+  if (typeof obj === "string" && obj.startsWith("0x") && obj.length >= 10) return obj;
+  if (typeof obj === "object") {
+    if (typeof obj.data === "string" && obj.data.startsWith("0x") && obj.data.length >= 10) {
+      return obj.data;
+    }
+    return findRevertData(obj.data, depth + 1);
+  }
+  return null;
+}
+
+/**
+ * Collect all .message / .shortMessage strings from a (potentially deeply nested)
+ * error object. Used to detect patterns like "insufficient funds" that wallets
+ * bury inside inner error wrappers.
+ */
+function collectErrorMessages(err) {
+  const msgs = [];
+  const seen = new WeakSet();
+  const queue = [err];
+  while (queue.length) {
+    const e = queue.shift();
+    if (!e || typeof e !== "object" || seen.has(e)) continue;
+    seen.add(e);
+    if (typeof e.message === "string") msgs.push(e.message);
+    if (typeof e.shortMessage === "string") msgs.push(e.shortMessage);
+    if (e.info?.error) queue.push(e.info.error);
+    if (e.error) queue.push(e.error);
+    if (e.data && typeof e.data === "object") queue.push(e.data);
+  }
+  return msgs;
+}
 
 /**
  * Parse a contract error into a user-friendly message.
  * Attempts to decode custom errors from the ABI; falls back to reason/message.
  */
 export function parseContractError(err, iface) {
-  // Try decoding custom error from revert data
-  if (iface && err?.data) {
-    try {
-      const decoded = iface.parseError(err.data);
-      if (decoded && CUSTOM_ERROR_MESSAGES[decoded.name]) {
-        return CUSTOM_ERROR_MESSAGES[decoded.name];
+  // Try decoding custom error from revert data — search the full error tree.
+  // MetaMask nests it at err.info.error.data.data; other wallets vary.
+  if (iface) {
+    const revertHex =
+      findRevertData(err) ||
+      findRevertData(err?.info?.error) ||
+      findRevertData(err?.error);
+    if (revertHex) {
+      try {
+        const decoded = iface.parseError(revertHex);
+        if (decoded && CUSTOM_ERROR_MESSAGES[decoded.name]) {
+          return CUSTOM_ERROR_MESSAGES[decoded.name];
+        }
+        if (decoded) {
+          return decoded.name.replace(/([A-Z])/g, " $1").trim();
+        }
+      } catch {
+        // Not a recognized custom error, fall through
       }
-      if (decoded) {
-        return decoded.name.replace(/([A-Z])/g, " $1").trim();
-      }
-    } catch {
-      // Not a recognized custom error, fall through
-    }
-  }
-
-  // ethers v6 sometimes nests the actual error
-  const inner = err?.info?.error || err?.error;
-  if (inner && iface && inner.data) {
-    try {
-      const decoded = iface.parseError(inner.data);
-      if (decoded && CUSTOM_ERROR_MESSAGES[decoded.name]) {
-        return CUSTOM_ERROR_MESSAGES[decoded.name];
-      }
-      if (decoded) {
-        return decoded.name.replace(/([A-Z])/g, " $1").trim();
-      }
-    } catch {
-      // fall through
     }
   }
 
@@ -61,13 +93,22 @@ export function parseContractError(err, iface) {
     return "Transaction was rejected.";
   }
 
-  // RPC / network errors
+  // Insufficient funds — wallets bury this message inside nested error objects
+  const allMsgs = collectErrorMessages(err).join(" ").toLowerCase();
+  if (allMsgs.includes("insufficient funds") || allMsgs.includes("insufficient balance")) {
+    return "Insufficient POL balance to cover the bet amount and gas fees.";
+  }
+
+  // RPC / network errors — but NOT MetaMask's generic "Internal JSON-RPC error."
+  // which wraps all call failures (reverts, insufficient funds, etc.), not just
+  // network issues. That message contains "RPC" and would false-match here.
+  if (err?.code === "NETWORK_ERROR" || err?.code === "SERVER_ERROR") {
+    return "Network error — your wallet's RPC endpoint may be down. Try switching RPC in your wallet settings.";
+  }
   const rpcMsg = err?.info?.error?.message || err?.error?.message || "";
   if (
-    rpcMsg.includes("RPC") ||
-    rpcMsg.includes("endpoint") ||
-    err?.code === "NETWORK_ERROR" ||
-    err?.code === "SERVER_ERROR"
+    (rpcMsg.includes("endpoint") || rpcMsg.includes("rate limit")) &&
+    !rpcMsg.includes("Internal JSON-RPC error")
   ) {
     return "Network error — your wallet's RPC endpoint may be down. Try switching RPC in your wallet settings.";
   }

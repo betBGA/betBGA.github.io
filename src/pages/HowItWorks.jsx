@@ -31,7 +31,7 @@ export function HowItWorks() {
         <ol className="hiw-list">
           <li>
             <strong>Open</strong> — A player creates a bet by specifying the BGA
-            table&nbsp;ID, the USDC stake, and the number of player slots
+            table&nbsp;ID, the POL stake, and the number of player slots
             (2–10). Other players join until all slots are filled.
           </li>
           <li>
@@ -71,8 +71,8 @@ export function HowItWorks() {
             refunded in full.
           </li>
           <li>
-            A fixed fee of <strong>USDC&nbsp;$0.50</strong> per resolved bet is
-            deducted from the prize pool and paid to one oracle in round-robin
+            A fee of <strong>1% of the prize pool</strong> per resolved bet is
+            deducted and paid to one oracle in round-robin
             order. No fee is charged when a bet is not successfully resolved.
           </li>
         </ul>
@@ -82,22 +82,20 @@ export function HowItWorks() {
       <section className="hiw-section">
         <h2>Escrow &amp; Payouts</h2>
         <p>
-          Every participant's USDC stake is transferred to the contract when they
-          join. Funds are held via OpenZeppelin's <code>SafeERC20</code> until
-          the bet reaches a final state.
+          Every participant's POL stake is sent to the contract when they
+          join. Funds are held in escrow until the bet reaches a final state.
         </p>
         <ul className="hiw-list">
           <li>
             <strong>Winners predicted correctly</strong> — the prize pool (minus
-            the oracle fee) is split equally among all correct predictors.
+            the 1% oracle fee) is split equally among all correct predictors.
           </li>
           <li>
             <strong>Nobody predicted correctly</strong> — the pool minus the fee
-            is split equally among <em>all</em> participants, so nobody loses
-            more than the $0.50 fee share.
+            is split equally among <em>all</em> participants.
           </li>
           <li>
-            The maximum stake is <strong>USDC&nbsp;$5,000</strong> per
+            The maximum stake is <strong>10,000&nbsp;POL</strong> per
             participant, capping the financial incentive for oracle corruption.
           </li>
         </ul>

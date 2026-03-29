@@ -43,7 +43,7 @@ function getEventDetail(event) {
   const { name, args } = event;
   switch (name) {
     case "BetCreated":
-      return `$${(Number(args.amount) / 1_000_000).toFixed(2)} · ${Number(args.slotCount)} slots · picks #${Number(args.predictedWinner)}`;
+      return `${Number(args.amount)} POL · ${Number(args.slotCount)} slots · picks #${Number(args.predictedWinner)}`;
     case "BetJoined":
       return `picks player #${Number(args.predictedWinner)}`;
     case "BetResolved":
@@ -100,8 +100,8 @@ function ChatMessage({ event }) {
   );
 }
 
-export function EventLog({ betId }) {
-  const { events, loading } = useBetEvents(betId);
+export function EventLog({ betId, createdAtBlock }) {
+  const { events, loading } = useBetEvents(betId, createdAtBlock);
   const scrollRef = useRef(null);
 
   // Auto-scroll to bottom when new events arrive

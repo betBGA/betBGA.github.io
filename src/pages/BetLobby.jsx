@@ -10,15 +10,15 @@ import { Confetti } from "../components/Confetti.jsx";
 import { EventLog } from "../components/EventLog.jsx";
 import { WalletOverlay } from "../components/WalletOverlay.jsx";
 import { ConfirmDialog } from "../components/ConfirmDialog.jsx";
-import { formatUsdc, bgaTableUrl, bgaPlayerUrl } from "../utils/format.js";
+import { formatPol, computePayouts, bgaTableUrl, bgaPlayerUrl } from "../utils/format.js";
 import { parseContractError, waitForTx } from "../utils/contract.js";
-import { BetState, BET_STATE_NAMES, BETBGA_ADDRESS, ORACLE_FEE } from "../utils/constants.js";
+import { BetState, BET_STATE_NAMES, ONE_POL } from "../utils/constants.js";
 import "./BetLobby.css";
 
 export function BetLobby() {
   const { betId } = useParams();
   const { bet, loading, error, refetch } = useBet(Number(betId));
-  const { contract, usdcContract, address, isConnected } = useWallet();
+  const { contract, address, isConnected } = useWallet();
   const { addToast, removeToast } = useToast();
 
   const [predictedWinner, setPredictedWinner] = useState("");
@@ -79,10 +79,8 @@ export function BetLobby() {
       flags.fill(true);
     }
 
-    const pool = bet.amount * bet.slotCount - ORACLE_FEE;
-    const share = Math.floor(pool / winnerCount);
-
-    const payoutStrs = flags.map((won) => (won ? formatUsdc(share) : null));
+    const { share } = computePayouts(bet.amount, bet.participants.length, winnerCount);
+    const payoutStrs = flags.map((won) => (won ? formatPol(share) : null));
 
     const myIdx = bet.participants.findIndex(
       (p) => p.addr.toLowerCase() === address?.toLowerCase()
@@ -125,29 +123,8 @@ export function BetLobby() {
       return;
     }
 
-    // Check & approve USDC
-    try {
-      const allowance = await usdcContract.allowance(address, BETBGA_ADDRESS);
-      if (allowance < BigInt(bet.amount)) {
-        setTxLabel("Approving USDC");
-        setTxPending(true);
-        const tid = addToast("Approving USDC…", "pending", 0);
-        const appTx = await usdcContract.approve(BETBGA_ADDRESS, bet.amount);
-        await waitForTx(appTx);
-        removeToast(tid);
-        addToast("USDC approved!", "success");
-        setTxPending(false);
-        setTxLabel("");
-      }
-    } catch (err) {
-      console.error("Approve error:", err);
-      addToast("USDC approval failed.", "error");
-      setTxPending(false);
-      setTxLabel("");
-      return;
-    }
-
-    await execTx("Join bet", () => contract.join(bet.betId, winnerId));
+    const value = BigInt(bet.amount) * ONE_POL;
+    await execTx("Join bet", () => contract.join(bet.betId, winnerId, { value }));
     setPredictedWinner("");
   }
 
@@ -251,12 +228,12 @@ export function BetLobby() {
                     <path d="M10 0a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 16a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm1.42-5.56c-.5.36-.42.7-.42 1.06h-2c0-.9.08-1.4.84-2 .62-.5 1.16-.86 1.16-1.5 0-.78-.56-1.25-1.25-1.25-.72 0-1.25.5-1.33 1.25H6.5C6.6 6.3 7.9 5 10 5c1.96 0 3.25 1.18 3.25 2.75 0 1.4-1.06 2.1-1.83 2.69z"/>
                   </svg>
                   <span className="oracle-fee-tooltip">
-                    A $0.50 oracle fee is deducted from the total pool to cover game result verification.
+                    A 1% oracle fee is deducted from the total pool to cover game result verification.
                   </span>
                 </span>
               </span>
               <span className="info-value amount">
-                ${formatUsdc(bet.amount * bet.slotCount - ORACLE_FEE)}
+                {formatPol(computePayouts(bet.amount, bet.slotCount, 1).payout)} POL
               </span>
             </div>
             <div className="info-item">
@@ -352,7 +329,7 @@ export function BetLobby() {
                     required
                   />
                   <button type="submit" className="btn btn-primary" disabled={txPending}>
-                    {txPending ? "Joining…" : `Join — $${formatUsdc(bet.amount)}`}
+                    {txPending ? "Joining…" : `Join — ${bet.amount} POL`}
                   </button>
                 </div>
                 <span className="form-hint">
@@ -449,7 +426,7 @@ export function BetLobby() {
         </div>
 
         {/* Event log (chat panel) */}
-        <EventLog betId={Number(betId)} />
+        <EventLog betId={Number(betId)} createdAtBlock={bet?.createdAtBlock} />
       </div>
     </div>
   );

@@ -1,14 +1,13 @@
 export const BetBGAABI = [
   // State variables
-  "function token() view returns (address)",
-  "function ORACLE_FEE() view returns (uint256)",
-  "function MAX_BET_AMOUNT() view returns (uint96)",
+  "function ORACLE_FEE_BPS() view returns (uint256)",
+  "function MAX_BET_AMOUNT() view returns (uint64)",
   "function nextBetId() view returns (uint32)",
   "function oracles(uint256) view returns (address)",
 
   // Participant actions
-  "function create(uint64 bgaTableId, uint96 amount, uint8 slotCount, uint64 predictedWinner) returns (uint32)",
-  "function join(uint32 betId, uint64 predictedWinner)",
+  "function create(uint64 bgaTableId, uint64 amount, uint8 slotCount, uint64 predictedWinner) payable returns (uint32)",
+  "function join(uint32 betId, uint64 predictedWinner) payable",
   "function confirm(uint32 betId)",
   "function leave(uint32 betId)",
   "function voteCancel(uint32 betId)",
@@ -22,11 +21,11 @@ export const BetBGAABI = [
   "function getOracleResultHash(uint32 betId, address oracle) view returns (bytes32)",
   "function getResultVotes(uint32 betId, bytes32 resultHash) view returns (uint8)",
   "function getResolvedWinnerIds(uint32 betId) view returns (uint64[])",
-  "function getBetSummary(uint32 betId) view returns (tuple(uint32 betId, uint64 bgaTableId, uint8 slotCount, uint8 confirmCount, uint8 cancelVoteCount, uint8 state, uint96 amount, uint32 lockedAt, tuple(address addr, uint64 predictedWinner, bool confirmed, bool cancelVote)[] participants, uint64[] resolvedWinnerIds))",
-  "function getBetsByState(uint8 state, uint32 cursor, uint8 limit, bool asc) view returns (tuple(uint32 betId, uint64 bgaTableId, uint8 slotCount, uint8 confirmCount, uint8 cancelVoteCount, uint8 state, uint96 amount, uint32 lockedAt, tuple(address addr, uint64 predictedWinner, bool confirmed, bool cancelVote)[] participants, uint64[] resolvedWinnerIds)[])",
+  "function getBetSummary(uint32 betId) view returns (tuple(uint32 betId, uint64 bgaTableId, uint8 slotCount, uint8 confirmCount, uint8 cancelVoteCount, uint8 state, uint64 amount, uint32 lockedAt, uint32 createdAtBlock, tuple(address addr, uint64 predictedWinner, bool confirmed, bool cancelVote)[] participants, uint64[] resolvedWinnerIds))",
+  "function getBetsByState(uint8 state, uint32 cursor, uint8 limit, bool asc) view returns (tuple(uint32 betId, uint64 bgaTableId, uint8 slotCount, uint8 confirmCount, uint8 cancelVoteCount, uint8 state, uint64 amount, uint32 lockedAt, uint32 createdAtBlock, tuple(address addr, uint64 predictedWinner, bool confirmed, bool cancelVote)[] participants, uint64[] resolvedWinnerIds)[])",
 
   // Events
-  "event BetCreated(uint32 indexed betId, uint64 indexed bgaTableId, uint32 timestamp, address indexed triggeredBy, uint96 amount, uint8 slotCount, uint64 predictedWinner)",
+  "event BetCreated(uint32 indexed betId, uint64 indexed bgaTableId, uint32 timestamp, address indexed triggeredBy, uint64 amount, uint8 slotCount, uint64 predictedWinner)",
   "event BetJoined(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy, uint64 predictedWinner)",
   "event BetConfirming(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy)",
   "event BetLeft(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy)",
@@ -41,7 +40,8 @@ export const BetBGAABI = [
   "event OracleReported(uint32 indexed betId, uint32 timestamp, address indexed triggeredBy, bytes32 resultHash, uint64[] winnerIds)",
 
   // Custom errors
-  "error InvalidTokenAddress()",
+  "error IncorrectValue()",
+  "error TransferFailed()",
   "error InvalidOracleAddress(uint8 index)",
   "error DuplicateOracleAddress()",
   "error NotOracle()",
@@ -64,4 +64,3 @@ export const BetBGAABI = [
   "error RefundTooEarly()",
   "error LimitMustBePositive()",
 ];
-

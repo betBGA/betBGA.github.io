@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import { BetBGAABI } from "../abi/BetBGA.js";
-import { ERC20ABI } from "../abi/ERC20.js";
 import {
   BETBGA_ADDRESS,
-  USDC_ADDRESS,
   POLYGON_CHAIN_ID,
   POLYGON_CHAIN_ID_HEX,
 } from "../utils/constants.js";
@@ -55,16 +53,11 @@ export function WalletProvider({ children }) {
     () => new Contract(BETBGA_ADDRESS, BetBGAABI, readProvider),
     [readProvider]
   );
-  const readUsdcContract = useMemo(
-    () => new Contract(USDC_ADDRESS, ERC20ABI, readProvider),
-    [readProvider]
-  );
 
   const [wallets, setWallets] = useState([]);
   const [address, setAddress] = useState(null);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
-  const [usdcContract, setUsdcContract] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [autoConnecting, setAutoConnecting] = useState(
     () => !!localStorage.getItem(LAST_WALLET_KEY)
@@ -143,7 +136,6 @@ export function WalletProvider({ children }) {
     setAddress(null);
     setSigner(null);
     setContract(null);
-    setUsdcContract(null);
     setError(null);
   }, []);
 
@@ -160,7 +152,6 @@ export function WalletProvider({ children }) {
           bp.getSigner().then((s) => {
             setSigner(s);
             setContract(new Contract(BETBGA_ADDRESS, BetBGAABI, s));
-            setUsdcContract(new Contract(USDC_ADDRESS, ERC20ABI, s));
           });
         }
       }
@@ -193,7 +184,6 @@ export function WalletProvider({ children }) {
         setAddress(addr);
         setSigner(newSigner);
         setContract(new Contract(BETBGA_ADDRESS, BetBGAABI, newSigner));
-        setUsdcContract(new Contract(USDC_ADDRESS, ERC20ABI, newSigner));
 
         // Listen for account/chain changes
         eipProvider.on?.("accountsChanged", handleAccountsChanged);
@@ -231,9 +221,7 @@ export function WalletProvider({ children }) {
     address,
     signer,
     contract,        // signer-attached contract (null if not connected)
-    usdcContract,    // signer-attached USDC contract (null if not connected)
     readContract,    // read-only betBGA contract (always available)
-    readUsdcContract,// read-only USDC contract (always available)
     readProvider,    // read-only provider (always available)
     connecting,
     autoConnecting,

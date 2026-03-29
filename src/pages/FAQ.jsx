@@ -4,15 +4,15 @@ import "./FAQ.css";
 const FAQS = [
   {
     q: "What is betBGA?",
-    a: "betBGA is a smart contract on Polygon that lets you bet on the outcome of Board Game Arena games. Players stake USDC, play their game, and the winners get paid automatically based on oracle-reported results.",
+    a: "betBGA is a smart contract on Polygon that lets you bet on the outcome of Board Game Arena games. Players stake POL (Polygon's native token), play their game, and the winners get paid automatically based on oracle-reported results.",
   },
   {
     q: "How do I connect my wallet?",
     a: "Click the \"Connect Wallet\" button in the top-right corner. betBGA supports MetaMask and Rainbow Wallet. You'll need to be on the Polygon network — the app will prompt you to switch if needed.",
   },
   {
-    q: "What is USDC and how do I get it?",
-    a: "USDC is a stablecoin pegged to the US Dollar. Each USDC is worth $1. You can buy USDC on exchanges like Coinbase or Binance and transfer it to your Polygon wallet. You can also bridge USDC from Ethereum to Polygon using the Polygon Bridge.",
+    q: "What is POL and how do I get it?",
+    a: "POL is the native token of the Polygon network. You need POL both for gas fees and for staking in bets. You can buy POL on exchanges like Coinbase or Binance and transfer it to your Polygon wallet.",
   },
   {
     q: "How does betting work?",
@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "What is the oracle fee?",
-    a: "A fixed fee of USDC $0.50 per bet is deducted from the prize pool to compensate the oracle nodes for their operational costs. This fee is paid in round-robin fashion across the four oracles.",
+    a: "A 1% fee is deducted from the prize pool to compensate the oracle nodes for their operational costs. For example, a 50 POL pool pays 0.5 POL in fees. This fee is paid in round-robin fashion across the four oracles.",
   },
   {
     q: "Can I cancel a bet?",
@@ -48,7 +48,7 @@ const FAQS = [
   },
   {
     q: "What is the maximum bet amount?",
-    a: "The maximum stake per participant is USDC $5,000. This cap exists to limit the financial incentive for oracle corruption.",
+    a: "The maximum stake per participant is 10,000 POL. The minimum is 10 POL. These caps exist to limit the financial incentive for oracle corruption.",
   },
   {
     q: "Is it safe?",
@@ -56,7 +56,7 @@ const FAQS = [
   },
   {
     q: "What is Polygon?",
-    a: "Polygon is a blockchain network with low transaction fees. betBGA is deployed on Polygon to keep gas costs minimal for players. You'll need a small amount of POL (Polygon's native token) for gas fees.",
+    a: "Polygon is a blockchain network with low transaction fees. betBGA is deployed on Polygon to keep gas costs minimal for players. POL (Polygon's native token) is used both for gas fees and as the betting currency.",
   }
 ];
 
