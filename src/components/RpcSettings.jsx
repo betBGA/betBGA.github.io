@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { useRpc } from "../context/RpcContext.jsx";
+import { useState, useRef } from "react";
+import { useRpc } from "../hooks/useRpc.js";
 import { DEFAULT_RPC_URLS, POLYGON_CHAIN_ID } from "../utils/constants.js";
 import "./RpcSettings.css";
 
@@ -23,6 +23,12 @@ async function validateRpcUrl(url) {
 }
 
 export function RpcSettings({ visible, onClose }) {
+  if (!visible) return null;
+
+  return <RpcSettingsContent onClose={onClose} />;
+}
+
+function RpcSettingsContent({ onClose }) {
   const { rpcUrls, setRpcUrls } = useRpc();
   const [draft, setDraft] = useState(rpcUrls);
   const [newUrl, setNewUrl] = useState("");
@@ -30,17 +36,6 @@ export function RpcSettings({ visible, onClose }) {
   const [validationError, setValidationError] = useState(null);
   const inputRef = useRef(null);
 
-  // Reset draft state whenever the dialog opens
-  useEffect(() => {
-    if (visible) {
-      setDraft([...rpcUrls]);
-      setNewUrl("");
-      setValidating(null);
-      setValidationError(null);
-    }
-  }, [visible, rpcUrls]);
-
-  if (!visible) return null;
 
   const move = (index, direction) => {
     const next = [...draft];

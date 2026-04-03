@@ -1,5 +1,11 @@
 // betBGA contract address on Polygon Amoy testnet
-export const BETBGA_ADDRESS = "0x0C5f31F5dE73e0A95fc1aFACc4dB62c811C98B09";
+export const BETBGA_ADDRESS = "0x0fF0d5F2C6B64d0ba19C812Bf9B7d3045d8AC0C6";
+
+// USDT token used for betting on Polygon Amoy
+export const USDT_ADDRESS = "0xD298b149e34CDeF04bF1FCb0BD6612726f78aB4B";
+export const TOKEN_SYMBOL = "USDT";
+export const USDT_DECIMALS = 6;
+export const USDT_UNIT = 10n ** BigInt(USDT_DECIMALS);
 
 // Polygon Amoy testnet chain config
 export const POLYGON_CHAIN_ID = 80002;
@@ -61,16 +67,13 @@ export const BetState = {
 
 export const BET_STATE_NAMES = ["Open", "Confirming", "Locked", "Resolved", "No Consensus", "Cancelled", "Refunded"];
 
-// Oracle fee: 1% of prize pool (basis points, BigInt for exact math)
-export const ORACLE_FEE_BPS = 100n;
+// Stake limits (whole USDT only in the UI)
+export const MIN_BET_AMOUNT_USDT = 5;
+export const MAX_BET_AMOUNT_USDT = 250;
 
-// Wei per whole POL token
-export const ONE_POL = 10n ** 18n;
-
+// Flat oracle fee charged only on successful resolutions (base units, i.e. 0.50 USDT)
+export const ORACLE_FEE_USDT = 500_000n;
 
 // Polling interval for bet updates (ms)
 export const POLL_INTERVAL = 5000;
 
-// BGA URLs
-export const BGA_TABLE_URL = (tableId) => `https://boardgamearena.com/table?table=${tableId}`;
-export const BGA_PLAYER_URL = (playerId) => `https://boardgamearena.com/player?id=${playerId}`;

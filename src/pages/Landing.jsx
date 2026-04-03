@@ -7,10 +7,10 @@ import "./Landing.css";
 const STEPS = [
   { icon: "🎯", title: "Find Players", desc: "Find players that want to bet on a game." },
   { icon: "🎲", title: "Create a Lobby", desc: "Start a game on Board Game Arena and note the table ID from the URL." },
-  { icon: "💰", title: "Create a Bet", desc: "Set the stake amount, number of players, and pick your winner." },
+  { icon: "💰", title: "Create a Bet", desc: "Set the whole-USDT stake amount, number of players, and pick your winner." },
   { icon: "🔗", title: "Share the Link", desc: "Send the bet link to other players so they can join." },
   { icon: "✅", title: "Confirm & Play", desc: "Once all players joined, verify the details and confirm. Then play!" },
-  { icon: "🏆", title: "Get Paid", desc: "Oracles report the result. Winners get paid automatically." },
+  { icon: "🏆", title: "Get Paid", desc: "Oracles report the result. Winners get paid automatically in USDT." },
 ];
 
 export function Landing() {
@@ -26,7 +26,7 @@ export function Landing() {
           Bet on <span className="hero-highlight">Board Game Arena</span> games
         </h1>
         <p className="hero-sub">
-          <a href="https://github.com/betBGA/betBGA.github.io" target="_blank" rel="noopener noreferrer" className="hero-link">Open-source</a> · Trust-minimized · Oracle-verified · POL
+          <a href="https://github.com/betBGA/betBGA.github.io" target="_blank" rel="noopener noreferrer" className="hero-link">Open-source</a> · Trust-minimized · Oracle-verified · USDT on Polygon
         </p>
         <div className="hero-actions">
           <Link to="/create" className="btn btn-primary btn-lg">

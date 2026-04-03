@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useBetEvents } from "../hooks/useBetEvents.js";
 import { usePolName } from "../hooks/usePolName.js";
-import { truncateAddress } from "../utils/format.js";
-import { BLOCK_EXPLORER_URL } from "../utils/constants.js";
+import { truncateAddress, formatWholeUsdt } from "../utils/format.js";
+import { BLOCK_EXPLORER_URL, TOKEN_SYMBOL } from "../utils/constants.js";
 import "./EventLog.css";
 
-const EXPLORER_URL = BLOCK_EXPLORER_URL;
 
 /** Emoji + human-readable label for each event type */
 const EVENT_META = {
@@ -43,7 +42,7 @@ function getEventDetail(event) {
   const { name, args } = event;
   switch (name) {
     case "BetCreated":
-      return `${Number(args.amount)} POL · ${Number(args.slotCount)} slots · picks #${Number(args.predictedWinner)}`;
+      return `${formatWholeUsdt(args.amount)} ${TOKEN_SYMBOL} · ${Number(args.slotCount)} slots · picks #${Number(args.predictedWinner)}`;
     case "BetJoined":
       return `picks player #${Number(args.predictedWinner)}`;
     case "BetResolved":
@@ -62,7 +61,7 @@ function AddressLabel({ address }) {
 
   return (
     <a
-      href={`${EXPLORER_URL}address/${address}`}
+      href={`${BLOCK_EXPLORER_URL}/address/${address}`}
       target="_blank"
       rel="noopener noreferrer"
       className="evt-address"
@@ -84,7 +83,7 @@ function ChatMessage({ event }) {
         <div className="evt-bubble-header">
           {event.triggeredBy && <AddressLabel address={event.triggeredBy} />}
           <a
-            href={`${EXPLORER_URL}tx/${event.transactionHash}`}
+            href={`${BLOCK_EXPLORER_URL}/tx/${event.transactionHash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="evt-timestamp"

@@ -1,22 +1,24 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { bgaTableUrl, bgaPlayerUrl } from "../utils/format.js";
 import "./ConfirmDialog.css";
 
 export function ConfirmDialog({ visible, onConfirm, onCancel, bgaTableId, predictedWinner }) {
+  if (!visible) return null;
+
+  return (
+    <ConfirmDialogContent
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+      bgaTableId={bgaTableId}
+      predictedWinner={predictedWinner}
+    />
+  );
+}
+
+function ConfirmDialogContent({ onConfirm, onCancel, bgaTableId, predictedWinner }) {
   const [checkTable, setCheckTable] = useState(false);
   const [checkWinner, setCheckWinner] = useState(false);
   const [checkStarted, setCheckStarted] = useState(false);
-  const prevVisible = useRef(false);
-
-  // Reset checkboxes when the dialog opens (false → true transition)
-  if (visible && !prevVisible.current) {
-    setCheckTable(false);
-    setCheckWinner(false);
-    setCheckStarted(false);
-  }
-  prevVisible.current = visible;
-
-  if (!visible) return null;
 
   const allChecked = checkTable && checkWinner && checkStarted;
 

@@ -1,6 +1,5 @@
 export const BetBGAABI = [
   // State variables
-  "function ORACLE_FEE_BPS() view returns (uint256)",
   "function MAX_BET_AMOUNT() view returns (uint64)",
   "function nextBetId() view returns (uint32)",
   "function oracles(uint256) view returns (address)",
@@ -8,8 +7,8 @@ export const BetBGAABI = [
   "function acceptingNewBets() view returns (bool)",
 
   // Participant actions
-  "function create(uint64 bgaTableId, uint64 amount, uint8 slotCount, uint64 predictedWinner) payable returns (uint32)",
-  "function join(uint32 betId, uint64 predictedWinner) payable",
+  "function create(uint64 bgaTableId, uint64 amount, uint8 slotCount, uint64 predictedWinner) returns (uint32)",
+  "function join(uint32 betId, uint64 predictedWinner)",
   "function confirm(uint32 betId)",
   "function leave(uint32 betId)",
   "function voteCancel(uint32 betId)",

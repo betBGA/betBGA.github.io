@@ -11,8 +11,8 @@ export function HowItWorks() {
       <h1 className="hiw-title">⚙️ How It Works</h1>
       <p className="hiw-intro">
         BGAmble is an open-source, non-custodial smart contract on Polygon.
-        All funds are held in escrow by the contract — never by a person — and
-        winners are determined by independent oracle nodes.
+        All USDT funds are held in escrow by the contract — never by a person —
+        and winners are determined by independent oracle nodes.
       </p>
 
       {/* Contract banner */}
@@ -71,11 +71,11 @@ export function HowItWorks() {
               <span className="hiw-state-badge">Open</span>
             </dt>
             <dd>
-              The bet has been created with a BGA table&nbsp;ID, a POL stake
-              amount, and a number of player slots (2–10). The creator joins the bet automatically. Other players can join the bet.
+              The bet has been created with a BGA table&nbsp;ID, a USDT stake
+              amount, and a number of player slots (2–10). The creator joins the bet automatically. Creating and joining both require two wallet confirmations: first approve the exact USDT amount, then sign the contract call. Other players can join the bet.
               <span className="hiw-money hiw-money-out">
                 🚪 You can <strong>leave</strong> at any time — your full stake
-                is returned immediately.
+                is returned immediately in USDT.
               </span>
             </dd>
           </div>
@@ -121,7 +121,7 @@ export function HowItWorks() {
             </dt>
             <dd>
               The oracles reached consensus on the game's winner(s). The prize
-              pool (minus a 1% oracle fee) is automatically distributed:
+              pool (minus a flat 0.50&nbsp;USDT oracle fee) is automatically distributed:
               <ul className="hiw-payout-list">
                 <li>
                   <strong>Correct predictors</strong> split the pool equally.
@@ -151,7 +151,7 @@ export function HowItWorks() {
             </dt>
             <dd>
               Every participant voted to cancel the bet while it was locked.
-              All stakes are refunded in full — <strong>no fee</strong> is
+              All USDT stakes are refunded in full — <strong>no fee</strong> is
               charged.
             </dd>
           </div>
@@ -162,13 +162,12 @@ export function HowItWorks() {
             </dt>
             <dd>
               The bet was locked for more than 24&nbsp;hours without being
-              resolved, and a participant triggered the refund. All stakes are
+              resolved, and a participant triggered the refund. All USDT stakes are
               returned in full — <strong>no fee</strong> is charged.
             </dd>
           </div>
         </dl>
       </section>
-
       {/* Oracle Consensus */}
       <section className="hiw-section">
         <h2>Oracle Consensus</h2>
@@ -195,11 +194,11 @@ export function HowItWorks() {
 
       {/* Oracle Fee */}
       <section className="hiw-section">
-        <h2>Why the 1% Oracle Fee?</h2>
+        <h2>Why the 0.50 USDT Oracle Fee?</h2>
         <p>
           Running oracle nodes costs real money — servers that continuously
           monitor Board Game Arena, verify game results, and submit on-chain
-          transactions (which cost gas). The <strong>1%&nbsp;fee</strong> on
+          transactions (which cost gas). The <strong>0.50&nbsp;USDT fee</strong> on
           successfully resolved bets covers these infrastructure costs and
           incentivizes the oracles to operate reliably and honestly.
         </p>
@@ -210,11 +209,11 @@ export function HowItWorks() {
             failed consensus.
           </li>
           <li>
-            The fee is paid to one oracle at a time in round-robin order,
-            spreading the reward evenly.
+            The fee is fixed per resolved bet, so players can predict their
+            payout before joining.
           </li>
           <li>
-            The maximum stake is <strong>10,000&nbsp;POL</strong> per
+            The maximum stake is <strong>250&nbsp;USDT</strong> per
             participant, capping the financial incentive for oracle corruption.
           </li>
         </ul>

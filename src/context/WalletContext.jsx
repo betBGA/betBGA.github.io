@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import { BetBGAABI } from "../abi/BetBGA.js";
+import { ERC20ABI } from "../abi/ERC20.js";
 import {
   BETBGA_ADDRESS,
   POLYGON_CHAIN_ID,
   POLYGON_CHAIN_ID_HEX,
+  USDT_ADDRESS,
 } from "../utils/constants.js";
 import { initEIP6963, getProviders, onProvidersChanged, getLegacyProvider } from "../utils/eip6963.js";
 import { WalletCtx } from "./WalletCtx.js";
-import { useRpc } from "./RpcContext.jsx";
+import { useRpc } from "../hooks/useRpc.js";
 
 // Polygon minimum priority fee (30 gwei) — works for both mainnet and testnets
 const MIN_PRIORITY_FEE = 30_000_000_000n;
@@ -53,11 +55,16 @@ export function WalletProvider({ children }) {
     () => new Contract(BETBGA_ADDRESS, BetBGAABI, readProvider),
     [readProvider]
   );
+  const readUsdtContract = useMemo(
+    () => new Contract(USDT_ADDRESS, ERC20ABI, readProvider),
+    [readProvider]
+  );
 
   const [wallets, setWallets] = useState([]);
   const [address, setAddress] = useState(null);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
+  const [usdtContract, setUsdtContract] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [autoConnecting, setAutoConnecting] = useState(
     () => !!localStorage.getItem(LAST_WALLET_KEY)
@@ -136,6 +143,7 @@ export function WalletProvider({ children }) {
     setAddress(null);
     setSigner(null);
     setContract(null);
+    setUsdtContract(null);
     setError(null);
   }, []);
 
@@ -152,6 +160,7 @@ export function WalletProvider({ children }) {
           bp.getSigner().then((s) => {
             setSigner(s);
             setContract(new Contract(BETBGA_ADDRESS, BetBGAABI, s));
+            setUsdtContract(new Contract(USDT_ADDRESS, ERC20ABI, s));
           });
         }
       }
@@ -184,6 +193,7 @@ export function WalletProvider({ children }) {
         setAddress(addr);
         setSigner(newSigner);
         setContract(new Contract(BETBGA_ADDRESS, BetBGAABI, newSigner));
+        setUsdtContract(new Contract(USDT_ADDRESS, ERC20ABI, newSigner));
 
         // Listen for account/chain changes
         eipProvider.on?.("accountsChanged", handleAccountsChanged);
@@ -221,7 +231,9 @@ export function WalletProvider({ children }) {
     address,
     signer,
     contract,        // signer-attached contract (null if not connected)
+    usdtContract,    // signer-attached USDT contract (null if not connected)
     readContract,    // read-only betBGA contract (always available)
+    readUsdtContract,
     readProvider,    // read-only provider (always available)
     connecting,
     autoConnecting,

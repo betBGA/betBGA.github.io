@@ -10,15 +10,16 @@ import { Confetti } from "../components/Confetti.jsx";
 import { EventLog } from "../components/EventLog.jsx";
 import { WalletOverlay } from "../components/WalletOverlay.jsx";
 import { ConfirmDialog } from "../components/ConfirmDialog.jsx";
-import { formatPol, computePayouts, bgaTableUrl, bgaPlayerUrl } from "../utils/format.js";
+import { formatUsdt, formatWholeUsdt, computePayouts, bgaTableUrl, bgaPlayerUrl, wholeUsdtToBaseUnits } from "../utils/format.js";
 import { parseContractError, waitForTx } from "../utils/contract.js";
-import { BetState, BET_STATE_NAMES, ONE_POL } from "../utils/constants.js";
+import { ensureUsdtApproval } from "../utils/approveUsdt.js";
+import { BetState, BET_STATE_NAMES, ORACLE_FEE_USDT, TOKEN_SYMBOL } from "../utils/constants.js";
 import "./BetLobby.css";
 
 export function BetLobby() {
   const { betId } = useParams();
   const { bet, loading, error, refetch } = useBet(Number(betId));
-  const { contract, address, isConnected } = useWallet();
+  const { contract, usdtContract, readUsdtContract, address, isConnected } = useWallet();
   const { addToast, removeToast } = useToast();
 
   const [predictedWinner, setPredictedWinner] = useState("");
@@ -80,7 +81,7 @@ export function BetLobby() {
     }
 
     const { share } = computePayouts(bet.amount, bet.participants.length, winnerCount);
-    const payoutStrs = flags.map((won) => (won ? formatPol(share) : null));
+    const payoutStrs = flags.map((won) => (won ? formatUsdt(share) : null));
 
     const myIdx = bet.participants.findIndex(
       (p) => p.addr.toLowerCase() === address?.toLowerCase()
@@ -115,6 +116,45 @@ export function BetLobby() {
     }
   }
 
+  async function execApprovedUsdtTx(label, amountBaseUnits, fn) {
+    if (!isConnected || !address || !usdtContract || !readUsdtContract) {
+      addToast("Please connect your wallet.", "error");
+      return false;
+    }
+
+    setTxPending(true);
+    let toastId;
+    let activeIface = usdtContract.interface;
+
+    try {
+      setTxLabel(`Step 1 of 2 — Approve ${TOKEN_SYMBOL}`);
+      toastId = addToast(`Step 1 of 2 — Approve ${TOKEN_SYMBOL}…`, "pending", 0);
+
+      await ensureUsdtApproval({ readUsdtContract, usdtContract, owner: address, amountBaseUnits });
+
+      removeToast(toastId);
+      setTxLabel(`Step 2 of 2 — ${label}`);
+      toastId = addToast(`Step 2 of 2 — ${label}…`, "pending", 0);
+      activeIface = contract?.interface;
+
+      const tx = await fn();
+      await waitForTx(tx);
+      removeToast(toastId);
+      addToast(`${label} successful!`, "success");
+      refetch();
+      return true;
+    } catch (err) {
+      if (toastId) removeToast(toastId);
+      console.error(`${label} error:`, err);
+      const msg = parseContractError(err, activeIface);
+      addToast(msg, "error");
+      return false;
+    } finally {
+      setTxPending(false);
+      setTxLabel("");
+    }
+  }
+
   async function handleJoin(e) {
     e.preventDefault();
     const winnerId = parseInt(predictedWinner, 10);
@@ -123,9 +163,8 @@ export function BetLobby() {
       return;
     }
 
-    const value = BigInt(bet.amount) * ONE_POL;
-    await execTx("Join bet", () => contract.join(bet.betId, winnerId, { value }));
-    setPredictedWinner("");
+    const joined = await execApprovedUsdtTx("Join bet", wholeUsdtToBaseUnits(bet.amount), () => contract.join(bet.betId, winnerId));
+    if (joined) setPredictedWinner("");
   }
 
   function handleConfirm() {
@@ -228,12 +267,12 @@ export function BetLobby() {
                     <path d="M10 0a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 16a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm1.42-5.56c-.5.36-.42.7-.42 1.06h-2c0-.9.08-1.4.84-2 .62-.5 1.16-.86 1.16-1.5 0-.78-.56-1.25-1.25-1.25-.72 0-1.25.5-1.33 1.25H6.5C6.6 6.3 7.9 5 10 5c1.96 0 3.25 1.18 3.25 2.75 0 1.4-1.06 2.1-1.83 2.69z"/>
                   </svg>
                   <span className="oracle-fee-tooltip">
-                    A 1% oracle fee is deducted from the total pool to cover game result verification.
+                    A flat {formatUsdt(ORACLE_FEE_USDT)} {TOKEN_SYMBOL} oracle fee is deducted from resolved bets.
                   </span>
                 </span>
               </span>
               <span className="info-value amount">
-                {formatPol(computePayouts(bet.amount, bet.slotCount, 1).payout)} POL
+                {formatUsdt(computePayouts(bet.amount, bet.slotCount, 1).payout)} {TOKEN_SYMBOL}
               </span>
             </div>
             <div className="info-item">
@@ -329,10 +368,16 @@ export function BetLobby() {
                     required
                   />
                   <button type="submit" className="btn btn-primary" disabled={txPending}>
-                    {txPending ? "Joining…" : `Join — ${bet.amount} POL`}
+                    {txPending
+                      ? txLabel.includes("Approve")
+                        ? `Approving ${TOKEN_SYMBOL}…`
+                        : "Joining…"
+                      : `Join — ${formatWholeUsdt(bet.amount)} ${TOKEN_SYMBOL}`}
                   </button>
                 </div>
                 <span className="form-hint">
+                  Joining takes 2 wallet confirmations: approve the exact {formatWholeUsdt(bet.amount)} {TOKEN_SYMBOL}, then join the bet.
+                  <br />
                   Click your avatar on BGA → <em>View my profile</em> → find the ID in the URL:
                   boardgamearena.com/player?id=<strong>XXXXXXXXX</strong>
                 </span>
@@ -395,7 +440,7 @@ export function BetLobby() {
             {bet.state === BetState.Resolved && (
               <div className="resolved-banner">
                 <h2>🏆 Bet Resolved!</h2>
-                <p>The oracles have reported the result and winnings were distributed.</p>
+                <p>The oracles have reported the result and winnings were distributed in {TOKEN_SYMBOL}.</p>
               </div>
             )}
 
@@ -403,7 +448,7 @@ export function BetLobby() {
             {bet.state === BetState.NoConsensus && (
               <div className="cancelled-banner">
                 <h2>⚖️ No Oracle Consensus</h2>
-                <p>The oracles could not agree on a result. All stakes have been refunded in full.</p>
+                <p>The oracles could not agree on a result. All {TOKEN_SYMBOL} stakes have been refunded in full.</p>
               </div>
             )}
 
@@ -411,7 +456,7 @@ export function BetLobby() {
             {bet.state === BetState.Cancelled && (
               <div className="cancelled-banner">
                 <h2>❌ Bet Cancelled</h2>
-                <p>All participants agreed to cancel. Stakes have been refunded.</p>
+                <p>All participants agreed to cancel. {TOKEN_SYMBOL} stakes have been refunded.</p>
               </div>
             )}
 
@@ -419,7 +464,7 @@ export function BetLobby() {
             {bet.state === BetState.Refunded && (
               <div className="refunded-banner">
                 <h2>💸 Bet Refunded</h2>
-                <p>No oracle consensus was reached within 24 hours. All stakes have been refunded.</p>
+                <p>No oracle consensus was reached within 24 hours. All {TOKEN_SYMBOL} stakes have been refunded.</p>
               </div>
             )}
           </div>

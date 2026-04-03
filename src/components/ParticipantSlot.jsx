@@ -1,6 +1,6 @@
 import { usePolName } from "../hooks/usePolName.js";
 import { truncateAddress, roboHashUrl, bgaPlayerUrl } from "../utils/format.js";
-import { BetState } from "../utils/constants.js";
+import { BetState, TOKEN_SYMBOL } from "../utils/constants.js";
 import "./ParticipantSlot.css";
 
 /** Renders a .pol name with the TLD suffix dimmed */
@@ -82,7 +82,7 @@ function ParticipantSlotInner({ addr, predictedWinner, confirmed, cancelVote, is
         {betState === BetState.Locked && cancelVote && <span className="badge badge-cancel">Voted to cancel</span>}
         {betState === BetState.Resolved && isWinner && (
           <span className={`badge ${isSplit ? "badge-split" : "badge-won"}`}>
-            {isSplit ? "Split" : "Won"} {payout} POL
+            {isSplit ? "Split" : "Won"} {payout} {TOKEN_SYMBOL}
           </span>
         )}
       </div>

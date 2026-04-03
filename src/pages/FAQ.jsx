@@ -4,19 +4,19 @@ import "./FAQ.css";
 const FAQS = [
   {
     q: "What is betBGA?",
-    a: "betBGA is a smart contract on Polygon that lets you bet on the outcome of Board Game Arena games. Players stake POL (Polygon's native token), play their game, and the winners get paid automatically based on oracle-reported results.",
+    a: "betBGA is a smart contract on Polygon that lets you bet on the outcome of Board Game Arena games. Players stake USDT, play their game, and the winners get paid automatically based on oracle-reported results.",
   },
   {
     q: "How do I connect my wallet?",
     a: "Click the \"Connect Wallet\" button in the top-right corner. betBGA supports MetaMask and Rainbow Wallet. You'll need to be on the Polygon network — the app will prompt you to switch if needed.",
   },
   {
-    q: "What is POL and how do I get it?",
-    a: "POL is the native token of the Polygon network. You need POL both for gas fees and for staking in bets. You can buy POL on exchanges like Coinbase or Binance and transfer it to your Polygon wallet.",
+    q: "What is USDT and do I still need POL?",
+    a: "USDT is the betting currency used by betBGA. You still need a small amount of POL in your wallet to pay Polygon gas fees, but the bet stakes, payouts, refunds, and cancellations all use USDT.",
   },
   {
     q: "How does betting work?",
-    a: "1) Create a bet with a BGA table ID, stake amount, and your predicted winner. 2) Share the bet link with other players. 3) Once all slots are filled, everyone confirms. 4) Play the game on BGA. 5) Oracle nodes automatically detect the result and distribute winnings.",
+    a: "1) Create a bet with a BGA table ID, whole-USDT stake amount, and your predicted winner. 2) Approve the exact USDT amount in your wallet, then sign the create transaction. 3) Share the bet link with other players. 4) Joiners also approve USDT first, then sign the join transaction. 5) Once all slots are filled, everyone confirms. 6) Play the game on BGA. 7) Oracle nodes automatically detect the result and distribute winnings.",
   },
   {
     q: "What is the BGA Table ID?",
@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "What is the oracle fee?",
-    a: "A 1% fee is deducted from the prize pool to compensate the oracle nodes for their operational costs. For example, a 50 POL pool pays 0.5 POL in fees. This fee is paid in round-robin fashion across the four oracles.",
+    a: "A flat 0.50 USDT fee is deducted from successfully resolved bets to compensate the oracle nodes for their operational costs. Refunds, cancellations, and no-consensus outcomes do not pay this fee.",
   },
   {
     q: "Can I cancel a bet?",
@@ -48,15 +48,15 @@ const FAQS = [
   },
   {
     q: "What is the maximum bet amount?",
-    a: "The maximum stake per participant is 10,000 POL. The minimum is 10 POL. These caps exist to limit the financial incentive for oracle corruption.",
+    a: "The maximum stake per participant is 250 USDT. The minimum is 5 USDT. The create screen only supports whole-USDT amounts in that range.",
   },
   {
     q: "Is it safe?",
-    a: "betBGA is a non-custodial smart contract — funds are held in the contract, not by any person. The contract has an owner, but their only power is to pause the creation of new bets; they cannot access funds, change oracles, or interfere with existing bets. The code is open-source and verifiable. However, as with any smart contract, use at your own risk. The 3-of-4 oracle consensus means you need to trust that at least 3 oracles are honest.",
+    a: "betBGA is a non-custodial smart contract — USDT funds are held in the contract, not by any person. The contract has an owner, but their only power is to pause the creation of new bets; they cannot access funds, change oracles, or interfere with existing bets. The code is open-source and verifiable. However, as with any smart contract, use at your own risk. The 3-of-4 oracle consensus means you need to trust that at least 3 oracles are honest.",
   },
   {
     q: "What is Polygon?",
-    a: "Polygon is a blockchain network with low transaction fees. betBGA is deployed on Polygon to keep gas costs minimal for players. POL (Polygon's native token) is used both for gas fees and as the betting currency.",
+    a: "Polygon is a blockchain network with low transaction fees. betBGA is deployed on Polygon to keep gas costs minimal for players. POL is used for gas fees, while USDT is used as the betting currency.",
   }
 ];
 

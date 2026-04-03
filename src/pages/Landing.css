@@ -42,7 +42,7 @@
 .hero-sub {
   font-size: 1.15rem;
   color: var(--text-muted);
-  max-width: 520px;
+  max-width: 640px;
   margin: 0 auto 2rem;
   line-height: 1.6;
 }

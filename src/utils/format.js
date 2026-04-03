@@ -1,33 +1,53 @@
-import { ORACLE_FEE_BPS, ONE_POL } from "./constants.js";
+import { ORACLE_FEE_USDT, USDT_DECIMALS, USDT_UNIT } from "./constants.js";
 
 /**
- * Format a wei amount (BigInt) to a human-readable POL string.
- * e.g. 49_500000000000000000n → "49.5"
- *      10_000000000000000000n → "10"
+ * Format a USDT base-unit amount (6 decimals) to a human-readable string.
+ * e.g. 49_500000n → "49.5"
+ *      10_000000n → "10"
  */
-export function formatPol(wei) {
-  const w = BigInt(wei);
-  const whole = w / ONE_POL;
-  const frac = w % ONE_POL;
+export function formatUsdt(amount) {
+  const value = BigInt(amount);
+  if (value < 0n) return "-" + formatUsdt(-value);
+
+  const whole = value / USDT_UNIT;
+  const frac = value % USDT_UNIT;
   if (frac === 0n) return whole.toString();
-  // Up to 4 significant decimal digits, strip trailing zeros
-  const fracStr = frac.toString().padStart(18, "0").slice(0, 4).replace(/0+$/, "");
+
+  const fracStr = frac
+    .toString()
+    .padStart(USDT_DECIMALS, "0")
+    .replace(/0+$/, "");
+
   return `${whole}.${fracStr}`;
 }
 
 /**
  * Compute payouts exactly as the contract does (BigInt integer math).
- * amount     – whole POL integer (e.g. 10)
+ * amount     – per-player USDT amount in whole tokens (e.g. 20 = 20 USDT)
  * slotCount  – number of player slots
  * winnerCount – number of winners (≥ 1)
- * Returns { prizePool, oracleFee, payout, share } all in wei (BigInt).
+ * Returns { prizePool, oracleFee, payout, share } all in USDT base units.
  */
 export function computePayouts(amount, slotCount, winnerCount) {
-  const prizePool = BigInt(amount) * ONE_POL * BigInt(slotCount);
-  const oracleFee = prizePool * ORACLE_FEE_BPS / 10000n;
-  const payout = prizePool - oracleFee;
-  const share = payout / BigInt(winnerCount);
+  const prizePool = BigInt(amount) * USDT_UNIT * BigInt(slotCount);
+  const oracleFee = prizePool > 0n ? ORACLE_FEE_USDT : 0n;
+  const payout = prizePool > oracleFee ? prizePool - oracleFee : 0n;
+  const share = winnerCount > 0 ? payout / BigInt(winnerCount) : 0n;
   return { prizePool, oracleFee, payout, share };
+}
+
+/**
+ * Convert a whole-USDT input ("5" to "250") into 6-decimal base units.
+ */
+export function wholeUsdtToBaseUnits(value) {
+  return BigInt(value) * USDT_UNIT;
+}
+
+/**
+ * Format a whole-token USDT amount stored by the contract.
+ */
+export function formatWholeUsdt(amount) {
+  return BigInt(amount).toString();
 }
 
 /**

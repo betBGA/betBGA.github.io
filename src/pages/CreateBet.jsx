@@ -3,17 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { useWallet } from "../hooks/useWallet.js";
 import { useToast } from "../hooks/useToast.js";
 import { parseContractError, waitForTx } from "../utils/contract.js";
-import { ONE_POL } from "../utils/constants.js";
+import { ensureUsdtApproval } from "../utils/approveUsdt.js";
+import {
+  MAX_BET_AMOUNT_USDT,
+  MIN_BET_AMOUNT_USDT,
+  TOKEN_SYMBOL,
+} from "../utils/constants.js";
+import { wholeUsdtToBaseUnits } from "../utils/format.js";
 import { WalletOverlay } from "../components/WalletOverlay.jsx";
 import "./CreateBet.css";
 
 export function CreateBet() {
-  const { contract, readContract, isConnected } = useWallet();
+  const { contract, usdtContract, readContract, readUsdtContract, isConnected, address } = useWallet();
   const { addToast, removeToast } = useToast();
   const navigate = useNavigate();
 
   const [bgaTableId, setBgaTableId] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("20");
   const [slotCount, setSlotCount] = useState("2");
   const [predictedWinner, setPredictedWinner] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -28,9 +34,10 @@ export function CreateBet() {
     return () => { cancelled = true; };
   }, [readContract]);
 
+
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!isConnected || !contract) {
+    if (!isConnected || !contract || !usdtContract || !readUsdtContract || !address) {
       addToast("Please connect your wallet first.", "error");
       return;
     }
@@ -38,7 +45,7 @@ export function CreateBet() {
     const tableId = parseInt(bgaTableId, 10);
     const slots = parseInt(slotCount, 10);
     const winnerId = parseInt(predictedWinner, 10);
-    const amountPol = parseInt(amount, 10);
+    const amountUsdt = parseInt(amount, 10);
 
     if (!tableId || tableId <= 0) {
       addToast("Enter a valid BGA table ID.", "error");
@@ -48,24 +55,31 @@ export function CreateBet() {
       addToast("Enter a valid BGA player ID for your predicted winner.", "error");
       return;
     }
-    if (!amountPol || amountPol < 10) {
-      addToast("Minimum bet is 10 POL.", "error");
+    if (!Number.isInteger(amountUsdt) || amountUsdt < MIN_BET_AMOUNT_USDT) {
+      addToast(`Minimum bet is ${MIN_BET_AMOUNT_USDT} ${TOKEN_SYMBOL}.`, "error");
       return;
     }
-    if (amountPol > 10_000) {
-      addToast("Maximum bet is 10,000 POL.", "error");
+    if (amountUsdt > MAX_BET_AMOUNT_USDT) {
+      addToast(`Maximum bet is ${MAX_BET_AMOUNT_USDT} ${TOKEN_SYMBOL}.`, "error");
       return;
     }
 
     setSubmitting(true);
     let toastId;
+    let activeIface = usdtContract.interface;
 
     try {
-      // Create bet — send native POL with the call
-      setTxLabel("Creating bet");
-      toastId = addToast("Creating bet…", "pending", 0);
-      const value = BigInt(amountPol) * ONE_POL;
-      const tx = await contract.create(tableId, amountPol, slots, winnerId, { value });
+      const amountBaseUnits = wholeUsdtToBaseUnits(amountUsdt);
+
+      setTxLabel(`Step 1 of 2 — Approve ${TOKEN_SYMBOL}`);
+      toastId = addToast(`Step 1 of 2 — Approve ${TOKEN_SYMBOL}…`, "pending", 0);
+      await ensureUsdtApproval({ readUsdtContract, usdtContract, owner: address, amountBaseUnits });
+      removeToast(toastId);
+
+      setTxLabel("Step 2 of 2 — Create bet");
+      toastId = addToast("Step 2 of 2 — Create bet…", "pending", 0);
+      activeIface = contract.interface;
+      const tx = await contract.create(tableId, amountUsdt, slots, winnerId);
       const receipt = await waitForTx(tx);
 
       // Parse BetCreated event to get betId
@@ -91,7 +105,7 @@ export function CreateBet() {
     } catch (err) {
       if (toastId) removeToast(toastId);
       console.error("Create bet error:", err);
-      const msg = parseContractError(err, contract?.interface);
+      const msg = parseContractError(err, activeIface);
       addToast(msg, "error");
     } finally {
       setSubmitting(false);
@@ -134,19 +148,21 @@ export function CreateBet() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="amount">Bet Amount (POL)</label>
+            <label htmlFor="amount">Bet Amount Per Player ({TOKEN_SYMBOL})</label>
             <input
               id="amount"
               type="number"
-              min="10"
-              max="10000"
+              min={MIN_BET_AMOUNT_USDT}
+              max={MAX_BET_AMOUNT_USDT}
               step="1"
-              placeholder="e.g. 10"
+              placeholder="e.g. 20"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
             />
-            <span className="form-hint">Each player stakes this amount. Min 10 POL, max 10,000 POL.</span>
+            <span className="form-hint">
+              Whole {TOKEN_SYMBOL} only — min {MIN_BET_AMOUNT_USDT}, max {MAX_BET_AMOUNT_USDT}.
+            </span>
           </div>
 
           <div className="form-group">
@@ -184,7 +200,15 @@ export function CreateBet() {
             className="btn btn-primary btn-lg create-submit"
             disabled={submitting || !isConnected || paused}
           >
-            {submitting ? "Creating…" : paused ? "New Bets Paused" : !isConnected ? "Connect Wallet First" : "Create Bet"}
+            {submitting
+              ? txLabel.includes("Approve")
+                ? `Approving ${TOKEN_SYMBOL}…`
+                : "Creating…"
+              : paused
+                ? "New Bets Paused"
+                : !isConnected
+                  ? "Connect Wallet First"
+                  : "Create Bet"}
           </button>
         </form>
       </div>

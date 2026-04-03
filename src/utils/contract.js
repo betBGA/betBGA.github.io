@@ -5,8 +5,8 @@ const CUSTOM_ERROR_MESSAGES = {
   NotParticipant: "You are not a participant in this bet.",
   SlotCountTooLow: "Need at least 2 player slots.",
   SlotCountTooHigh: "Maximum 10 player slots.",
-  BetAmountTooLow: "Minimum bet is 10 POL.",
-  BetAmountTooHigh: "Maximum bet is 10,000 POL.",
+  BetAmountTooLow: "Minimum bet is 5 USDT.",
+  BetAmountTooHigh: "Maximum bet is 250 USDT.",
   InvalidTableId: "Enter a valid BGA table ID.",
   BetNotOpen: "This bet is not open for joining.",
   BetFull: "This bet is full.",
@@ -18,8 +18,8 @@ const CUSTOM_ERROR_MESSAGES = {
   BetNotLocked: "This bet is not locked.",
   AlreadyVotedCancel: "You already voted to cancel.",
   RefundTooEarly: "Refund is available 24 hours after the bet was locked.",
-  IncorrectValue: "Incorrect POL amount sent. Please try again.",
-  TransferFailed: "POL transfer failed. The recipient may have rejected it.",
+  IncorrectValue: "Do not send POL with this action — bets are paid in USDT.",
+  TransferFailed: "USDT transfer failed. Please verify your balance and approval.",
   NewBetsDisabled: "New bets are currently paused. Existing bets are unaffected — please try again later.",
 };
 
@@ -97,7 +97,7 @@ export function parseContractError(err, iface) {
   // Insufficient funds — wallets bury this message inside nested error objects
   const allMsgs = collectErrorMessages(err).join(" ").toLowerCase();
   if (allMsgs.includes("insufficient funds") || allMsgs.includes("insufficient balance")) {
-    return "Insufficient POL balance to cover the bet amount and gas fees.";
+    return "Insufficient balance. You need enough USDT for the stake and enough POL for gas fees.";
   }
 
   // RPC / network errors — but NOT MetaMask's generic "Internal JSON-RPC error."
@@ -114,43 +114,65 @@ export function parseContractError(err, iface) {
     return "Network error — your wallet's RPC endpoint may be down. Try switching RPC in your wallet settings.";
   }
 
-  const msg = err?.reason || err?.shortMessage || err?.message || "Transaction failed";
-
-  return msg;
+  return err?.reason || err?.shortMessage || err?.message || "Transaction failed";
 }
 
 /**
  * Check whether an error looks like a transient RPC failure.
  */
 function isRpcError(err) {
-  const rpcMsg = err?.info?.error?.message || err?.error?.message || "";
-  const rpcCode = err?.info?.error?.code || err?.error?.code;
+  const allMsgs = collectErrorMessages(err).join(" ");
+  const rpcCode =
+    err?.info?.error?.code || err?.error?.code || err?.code;
   return (
-    rpcMsg.includes("RPC") ||
-    rpcMsg.includes("endpoint") ||
+    allMsgs.includes("RPC") ||
+    allMsgs.includes("endpoint") ||
+    allMsgs.includes("could not coalesce") ||
     err?.code === "NETWORK_ERROR" ||
     err?.code === "SERVER_ERROR" ||
+    err?.code === "UNKNOWN_ERROR" ||
     rpcCode === -32603 ||
     rpcCode === -32080
   );
 }
 
 /**
- * Wait for a transaction receipt with retries.
- * Testnet RPCs are flaky — the tx may be submitted successfully but
- * the receipt poll fails transiently. This retries before giving up.
+ * Wait for a transaction receipt using manual polling.
+ *
+ * ethers v6's tx.wait() uses an internal OnBlockSubscriber that throws
+ * unhandled promise rejections when the wallet's RPC is flaky (common on
+ * testnets). Manual polling via getTransactionReceipt avoids that entirely
+ * and gives us full retry control.
+ *
+ * Polls every `intervalMs` for up to `maxAttempts` rounds (~2 min default).
  */
-export async function waitForTx(tx, retries = 3) {
-  for (let attempt = 0; attempt <= retries; attempt++) {
+export async function waitForTx(tx, { maxAttempts = 60, intervalMs = 2000 } = {}) {
+  const hash = tx.hash;
+  const provider = tx.provider;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let receipt;
     try {
-      return await tx.wait();
+      receipt = await provider.getTransactionReceipt(hash);
     } catch (err) {
-      if (isRpcError(err) && attempt < retries) {
-        await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));
-        continue;
-      }
-      throw err;
+      // Throw non-RPC errors immediately
+      if (!isRpcError(err)) throw err;
+      // RPC errors are silently retried on the next iteration
     }
+
+    if (receipt) {
+      if (receipt.status === 0) {
+        throw Object.assign(new Error("Transaction reverted on-chain."), { receipt });
+      }
+      return receipt;
+    }
+
+    await new Promise((r) => setTimeout(r, intervalMs));
   }
+
+  throw new Error(
+    "Transaction was sent but receipt polling timed out. " +
+    "Check your wallet or the block explorer for tx: " + hash
+  );
 }
 

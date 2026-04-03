@@ -1,13 +1,12 @@
-import { createContext, useContext, useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { JsonRpcProvider } from "ethers";
+import { RpcCtx } from "./RpcCtx.js";
 import {
   POLYGON_CHAIN_ID,
   POLYGON_CHAIN_CONFIG,
   getRpcUrls,
   saveRpcUrls,
 } from "../utils/constants.js";
-
-const RpcCtx = createContext(null);
 
 export function RpcProvider({ children }) {
   const [rpcUrls, setRpcUrlsState] = useState(getRpcUrls);
@@ -42,9 +41,4 @@ export function RpcProvider({ children }) {
   return <RpcCtx.Provider value={value}>{children}</RpcCtx.Provider>;
 }
 
-export function useRpc() {
-  const ctx = useContext(RpcCtx);
-  if (!ctx) throw new Error("useRpc must be used within <RpcProvider>");
-  return ctx;
-}
 
