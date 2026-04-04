@@ -14,7 +14,6 @@ import { useRpc } from "../hooks/useRpc.js";
 
 // Polygon minimum priority fee (30 gwei) — works for both mainnet and testnets
 const MIN_PRIORITY_FEE = 30_000_000_000n;
-const MIN_PRIORITY_FEE_HEX = "0x" + MIN_PRIORITY_FEE.toString(16);
 
 /**
  * Patch a BrowserProvider so every eth_sendTransaction includes at least
@@ -33,10 +32,14 @@ function patchFeeData(provider) {
       const effectiveTip = tip >= MIN_PRIORITY_FEE ? tip : MIN_PRIORITY_FEE;
       tx.maxPriorityFeePerGas = "0x" + effectiveTip.toString(16);
 
-      // Ensure maxFeePerGas >= maxPriorityFeePerGas (EIP-1559 rule)
-      const currentMax = tx.maxFeePerGas ? BigInt(tx.maxFeePerGas) : 0n;
-      if (currentMax < effectiveTip) {
-        tx.maxFeePerGas = "0x" + effectiveTip.toString(16);
+      // Ensure maxFeePerGas >= maxPriorityFeePerGas (EIP-1559 rule).
+      // Only touch maxFeePerGas when it was already present — if absent,
+      // let the wallet estimate it so the real base fee is included.
+      if (tx.maxFeePerGas) {
+        const currentMax = BigInt(tx.maxFeePerGas);
+        if (currentMax < effectiveTip) {
+          tx.maxFeePerGas = "0x" + effectiveTip.toString(16);
+        }
       }
       return originalSend(method, [tx]);
     }
