@@ -12,41 +12,6 @@ import { initEIP6963, getProviders, onProvidersChanged, getLegacyProvider } from
 import { WalletCtx } from "./WalletCtx.js";
 import { useRpc } from "../hooks/useRpc.js";
 
-// Polygon minimum priority fee (30 gwei) — works for both mainnet and testnets
-const MIN_PRIORITY_FEE = 30_000_000_000n;
-
-/**
- * Patch a BrowserProvider so every eth_sendTransaction includes at least
- * 30 gwei as maxPriorityFeePerGas.  ethers v6's JsonRpcSigner bypasses
- * getFeeData() and lets MetaMask fill in gas pricing, but MetaMask can
- * estimate a tip below the Polygon network minimum — so we intercept at
- * the RPC send level.
- */
-function patchFeeData(provider) {
-  const originalSend = provider.send.bind(provider);
-  provider.send = async (method, params) => {
-    if (method === "eth_sendTransaction" && Array.isArray(params) && params[0]) {
-      const tx = { ...params[0] };
-      // Ensure tip meets Polygon minimum
-      const tip = tx.maxPriorityFeePerGas ? BigInt(tx.maxPriorityFeePerGas) : 0n;
-      const effectiveTip = tip >= MIN_PRIORITY_FEE ? tip : MIN_PRIORITY_FEE;
-      tx.maxPriorityFeePerGas = "0x" + effectiveTip.toString(16);
-
-      // Ensure maxFeePerGas >= maxPriorityFeePerGas (EIP-1559 rule).
-      // Only touch maxFeePerGas when it was already present — if absent,
-      // let the wallet estimate it so the real base fee is included.
-      if (tx.maxFeePerGas) {
-        const currentMax = BigInt(tx.maxFeePerGas);
-        if (currentMax < effectiveTip) {
-          tx.maxFeePerGas = "0x" + effectiveTip.toString(16);
-        }
-      }
-      return originalSend(method, [tx]);
-    }
-    return originalSend(method, params);
-  };
-  return provider;
-}
 
 const LAST_WALLET_KEY = "bgamble:lastWallet";
 
@@ -159,7 +124,7 @@ export function WalletProvider({ children }) {
       } else {
         setAddress(accounts[0]);
         if (providerRef.current) {
-          const bp = patchFeeData(new BrowserProvider(providerRef.current, POLYGON_CHAIN_ID));
+          const bp = new BrowserProvider(providerRef.current, POLYGON_CHAIN_ID);
           bp.getSigner().then((s) => {
             setSigner(s);
             setContract(new Contract(BETBGA_ADDRESS, BetBGAABI, s));
@@ -188,7 +153,7 @@ export function WalletProvider({ children }) {
 
         await switchToPolygon(eipProvider);
 
-        const browserProvider = patchFeeData(new BrowserProvider(eipProvider, POLYGON_CHAIN_ID));
+        const browserProvider = new BrowserProvider(eipProvider, POLYGON_CHAIN_ID);
         const newSigner = await browserProvider.getSigner();
         const addr = await newSigner.getAddress();
 
