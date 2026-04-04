@@ -1,21 +1,21 @@
-// betBGA contract address on Polygon Amoy testnet
-export const BETBGA_ADDRESS = "0x0fF0d5F2C6B64d0ba19C812Bf9B7d3045d8AC0C6";
+// betBGA contract address on Polygon mainnet
+export const BETBGA_ADDRESS = "0x08407Cd9366e645D39eF60039e2f53a3038CB7bA";
 
-// USDT token used for betting on Polygon Amoy
-export const USDT_ADDRESS = "0xD298b149e34CDeF04bF1FCb0BD6612726f78aB4B";
+// USDT token used for betting on Polygon
+export const USDT_ADDRESS = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
 export const TOKEN_SYMBOL = "USDT";
 export const USDT_DECIMALS = 6;
 export const USDT_UNIT = 10n ** BigInt(USDT_DECIMALS);
 
-// Polygon Amoy testnet chain config
-export const POLYGON_CHAIN_ID = 80002;
-export const POLYGON_CHAIN_ID_HEX = "0x13882";
+// Polygon mainnet chain config
+export const POLYGON_CHAIN_ID = 137;
+export const POLYGON_CHAIN_ID_HEX = "0x89";
 
 // Default RPC endpoints (user can reorder / add / remove via settings)
 export const DEFAULT_RPC_URLS = [
-  "https://polygon-amoy.drpc.org",
-  "https://rpc-amoy.polygon.technology",
-  "https://polygon-amoy-bor-rpc.publicnode.com",
+  "https://polygon.drpc.org",
+  "https://polygon-bor-rpc.publicnode.com",
+  "https://1rpc.io/matic",
 ];
 
 // localStorage key for persisted RPC list
@@ -43,16 +43,16 @@ export function saveRpcUrls(urls) {
 // Static chain config *without* rpcUrls — callers spread in the live list.
 export const POLYGON_CHAIN_CONFIG = {
   chainId: POLYGON_CHAIN_ID_HEX,
-  chainName: "Polygon Amoy Testnet",
+  chainName: "Polygon",
   nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-  blockExplorerUrls: ["https://amoy.polygonscan.com/"],
+  blockExplorerUrls: ["https://polygonscan.com/"],
 };
 
 // Block explorer base URL (without trailing slash)
-export const BLOCK_EXPLORER_URL = "https://amoy.polygonscan.com";
+export const BLOCK_EXPLORER_URL = "https://polygonscan.com";
 
-// Unstoppable Domains ProxyReader on Polygon Amoy (may not be available on testnet)
-export const UD_PROXY_READER = "0xa9a6A3626993D487d2Dbda3173cf58cA1a9D9e9f";
+// Unstoppable Domains ProxyReader on Polygon
+export const UD_PROXY_READER = "0xc3C2BAB5e3e52DBF311b2aAcEf2e40344f19494E";
 
 // Bet states enum (matches Solidity)
 export const BetState = {

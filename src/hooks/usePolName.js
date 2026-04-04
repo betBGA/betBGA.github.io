@@ -7,17 +7,6 @@ const UD_ABI = ["function reverseNameOf(address addr) view returns (string)"];
 // Module-level cache: address → name (or "" for no name found)
 const nameCache = new Map();
 
-// Testnet mock names (UD/PNS contracts don't exist on Amoy)
-const TESTNET_MOCK_NAMES = {
-  "0xc5f9738c66b1881048bb84f28f32dd6b94a8a100": "mdej0ng.pol",
-};
-
-// Pre-populate cache with mocks when not on mainnet
-if (POLYGON_CHAIN_ID !== 137) {
-  for (const [addr, name] of Object.entries(TESTNET_MOCK_NAMES)) {
-    nameCache.set(addr.toLowerCase(), name);
-  }
-}
 
 // Shared provider for lookups — rebuilt if the active RPC URL changes
 let udContract = null;
